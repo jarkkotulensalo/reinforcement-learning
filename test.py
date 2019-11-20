@@ -1,2 +1,2 @@
 
-import test_pong_ai_multi
+import train_pong_ai
