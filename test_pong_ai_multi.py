@@ -10,6 +10,8 @@ import numpy as np
 import argparse
 import wimblepong
 from PIL import Image
+from simpler_ai import NOTAI
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")
@@ -29,7 +31,8 @@ player_id = 1
 opponent_id = 3 - player_id
 opponent = wimblepong.SimpleAi(env, opponent_id)
 player = wimblepong.SimpleAi(env, player_id)
-
+player = NOTAI(env, player_id)
+print(player.get_name())
 # Set the names for both SimpleAIs
 env.set_names(player.get_name(), opponent.get_name())
 
