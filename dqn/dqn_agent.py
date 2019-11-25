@@ -9,6 +9,7 @@ All rights reserved.
 
 import numpy as np
 from collections import namedtuple
+from PIL import Image
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -30,13 +31,13 @@ class DQN(nn.Module):
         self.action_space = action_space_dim
         self.hidden = hidden
         self.batch_size = batch_size
-        self.conv1 = torch.nn.Conv2d(in_channels=1,
+        self.conv1 = torch.nn.Conv2d(in_channels=4,
                                      out_channels=32,
-                                     kernel_size=3,
-                                     stride=2)
-        self.conv2 = torch.nn.Conv2d(32, 64, 3, 2)
-        self.conv3 = torch.nn.Conv2d(64, 128, 3, 2)
-        self.reshaped_size = 128 * 11 * 11
+                                     kernel_size=8,
+                                     stride=4)
+        self.conv2 = torch.nn.Conv2d(32, 64, 4, 2)
+        self.conv3 = torch.nn.Conv2d(64, 64, 3, 1)
+        self.reshaped_size = 64 * 9 * 9
         # self.reshaped_size = 90112
 
         self.fc1 = torch.nn.Linear(self.reshaped_size, self.hidden)
@@ -45,17 +46,17 @@ class DQN(nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
-        # print(f"forward x {x.shape}")
+        #print(f"forward x {x.shape}")
         x = F.relu(x)
         x = self.conv2(x)
-        # print(f"forward x {x.shape}")
+        #print(f"forward x {x.shape}")
         x = F.relu(x)
         x = self.conv3(x)
-        # print(f"forward x {x.shape}")
+        #print(f"forward x {x.shape}")
         x = F.relu(x)
 
         x = x.reshape(x.shape[0], self.reshaped_size)
-        # print(f"forward x {x.shape}")
+        #print(f"forward x {x.shape}")
         x = self.fc1(x)
         # print(f"forward x {x.shape}")
         x = F.relu(x)
@@ -148,9 +149,6 @@ class Agent(object):
         # for each batch state according to policy_net
         # print("state_batch")
         # print(state_batch.shape)
-        # print("action_batch")
-        # print(action_batch.shape)
-        # print(action_batch)
         # print(f"self.policy_net(state_batch) {self.policy_net(state_batch).shape}")
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
         # print(f"state_action_values {state_action_values.shape}")
@@ -177,12 +175,14 @@ class Agent(object):
         self.optimizer.step()
 
     def get_action(self, observation, epsilon=0.00):
-        state = self.preprocess(observation)
+        # epsilon = 0.1
         sample = random.random()
         if sample > epsilon:
+            state = self.preprocess(observation)
             with torch.no_grad():
-                state = torch.from_numpy(state).float().unsqueeze(1).to(self.train_device)
-                # print(f"action state is {state.shape}")
+                # print(f"state {state.shape}")
+                state = torch.from_numpy(state).float().unsqueeze(0).to(self.train_device)
+                # print(f"state {state.shape}")
                 q_values = self.policy_net(state)
                 return torch.argmax(q_values).item()
         else:
@@ -221,70 +221,49 @@ class Agent(object):
         return
 
     def preprocess(self, observation):
-        #print(f"observation {observation.shape}")
-        observation = observation[::2, ::2].mean(axis=-1)
+        # print(f"observation {observation.shape}")
+        # observation = observation[::2, ::2].mean(axis=-1)
+        observation = np.dot(observation, [0.2989, 0.5870, 0.1140]).astype(np.uint8)  # convert to greyscale
+        # print(f"observation {observation.shape}")
+        observation = observation[::2, ::2]
         #print(f"observation {observation.shape}")
         observation = np.expand_dims(observation, axis=0)
         #print(f"observation {observation.shape}")
-        observation[observation == 43] = 0 # erase background (background type 1)
+        # observation[observation == 43] = 0 # erase background (background type 1)
         #print(f"observation {observation.shape}")
-        observation[observation != 0] = 1  # everything else (paddles, ball) just set to 1
+        # observation[observation != 0] = 1  # everything else (paddles, ball) just set to 1
         #print(f"observation {observation.shape}")
-
-        # observation = np.expand_dims(observation, axis=0)
-        # observation = observation.astype(np.float).ravel()
-        #(f"observation {observation.shape}")
 
         if self.prev_obs is None:
             self.prev_obs = observation
-            stack_ob = np.zeros(100*100)
-        else:
-            stack_ob = observation - self.prev_obs
-        """
-        if self.prev_obs is None:
-            self.prev_obs = observation
-        stack_ob = np.concatenate((self.prev_obs, observation), axis=-1)
-        #print(f"stack_ob {stack_ob.shape}")
-        stack_ob = torch.from_numpy(stack_ob).float().unsqueeze(0)
-        #print(f"stack_ob {stack_ob.shape}")
-        stack_ob = stack_ob.transpose(1, 3)
-        print(f"stack_ob {stack_ob.shape}")
-        self.prev_obs = observation
-        """
+
+        #print(f"self.prev_obs {self.prev_obs.shape}")
+        stack_ob = np.concatenate((self.prev_obs, observation), axis=0)
         # print(f"stack_ob {stack_ob.shape}")
+
+        # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
+        while stack_ob.shape[0] < 4:
+            stack_ob = self._stack_frames(stack_ob, observation)
+            # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
+        # print(f"stack_ob {stack_ob.shape}")
+        # self.prev_obs = np.delete(stack_ob, (0), axis=0)
+
+        self.prev_obs = stack_ob[1:4, :, :]
+        # print(f"self.prev_obs.shape[0] {self.prev_obs.shape[0]}")
+        # print(np.mean(self.prev_obs))
+
+        # print(f"stack_ob {stack_ob.shape}")
+        # stack_ob = torch.from_numpy(stack_ob).float().unsqueeze(0)
         return stack_ob
 
-    def preprocess_observations(self, observation, input_dimensions=80*80):
-        """ convert the 210x160x3 uint8 frame into a 6400 float vector """
-        processed_observation = observation[35:195]  # crop
-        processed_observation = downsample(processed_observation)
-        processed_observation = remove_color(processed_observation)
-        processed_observation = remove_background(processed_observation)
-        processed_observation[processed_observation != 0] = 1  # everything else (paddles, ball) just set to 1
-        # Convert from 80 x 80 matrix to 1600 x 1 matrix
-        processed_observation = processed_observation.astype(np.float).ravel()
-
-        # subtract the previous frame from the current one so we are only processing on changes in the game
-        if self.prev_obs is not None:
-            observation = processed_observation - self.prev_obs
-        else:
-            observation = np.zeros(input_dimensions)
-        # store the previous frame so we can subtract from it next time
-        prev_processed_observations = processed_observation
-        return observation, prev_processed_observations
-
-def downsample(image):
-    # Take only alternate pixels - basically halves the resolution of the image (which is fine for us)
-    return image[::2, ::2, :]
-
-def remove_color(image):
-    """Convert all color (RGB is the third dimension in the image)"""
-    return image[:, :, 0]
-
-def remove_background(image):
-    image[image == 144] = 0
-    image[image == 109] = 0
-    return image
+    def _stack_frames(self, stack_ob, obs):
+        """
+        Stack a sequence of frames into one array to until 4 frames is stacked
+        :param stack_ob:
+        :param obs:
+        :return:
+        """
+        return np.concatenate((stack_ob, obs), axis=0)
 
 def prepro(self, I):
     """ prepro 210x160x3 uint8 frame into 6400 (80x80) 1D float vector """
