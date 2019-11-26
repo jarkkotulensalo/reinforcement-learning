@@ -36,7 +36,7 @@ hidden_size = 512
 gamma = 0.99
 lr = 1e-4
 frame_stacks = 4
-glie_a = 50
+glie_a = 5000
 TARGET_UPDATE = 250
 dagger_files = ['./mem9-1.pickle',
                 './mem7-3.pickle',
@@ -68,7 +68,7 @@ for i in range(0, episodes):
     if i / episodes < 0.5:
         eps = glie_a / (glie_a+i*2)
     else:
-        eps = 0
+        eps = 0.0
     obs = env.reset()
     frames = 0
     while not done:
