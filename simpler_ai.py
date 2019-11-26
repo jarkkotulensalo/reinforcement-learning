@@ -1,7 +1,9 @@
 from wimblepong import Wimblepong
+from utils import ReplayMemory, Transition
 import time
 import random
 from scratch import getkey
+import torch
 
 
 class NOTAI(object):
@@ -15,6 +17,7 @@ class NOTAI(object):
         # only in straight lines
         self.bpe = 4
         self.name = "NOTAI"
+        self.memory = ReplayMemory(1000000)
 
     def get_name(self):
         """
@@ -27,22 +30,7 @@ class NOTAI(object):
         Interface function that returns the action that the agent took based
         on the observation ob
         """
-        # # Get the player id from the environmen
-        # player = self.env.player1 if self.player_id == 1 else self.env.player2
-        # # Get own position in the game arena
-        # my_y = player.y
-        # # Get the ball position in the game arena
-        # ball_y = self.env.ball.y + (random.random()*self.bpe-self.bpe/2)
-        #
-        # # Compute the difference in position and try to minimize it
-        # y_diff = my_y - ball_y
-        # if abs(y_diff) < 2:
-        #     action = 0  # Stay
-        # else:
-        #     if y_diff > 0:
-        #         action = self.env.MOVE_UP  # Up
-        #     else:
-        #         action = self.env.MOVE_DOWN  # Down
+
         action = int(getkey())
         print(action)
 
@@ -52,3 +40,9 @@ class NOTAI(object):
     def reset(self):
         # Nothing to done for now...
         return
+    def store_transition(self, ob, action, next_ob, reward, done):
+        action = torch.Tensor([action]).long()
+        reward = torch.tensor([reward], dtype=torch.float32)
+        next_ob = torch.from_numpy(next_ob).float()
+        ob = torch.from_numpy(ob).float()
+        self.memory.push(ob, action, next_ob, reward, done)

@@ -6,6 +6,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib
 import cv2
+from utils import rgb2gray
 
 
 class Rect(object):
@@ -371,7 +372,7 @@ class Wimblepong(gym.core.Env):
                                  % str(self.opponent.player_id))
         else:
             # Multiplayer mode, return both
-            return (observation_left, observation_right), \
+            return (rgb2gray(observation_left), observation_right), \
                    (player1_reward, player2_reward)
 
     def step(self, actions):
@@ -424,7 +425,7 @@ class Wimblepong(gym.core.Env):
         # Get the observation based on the enemy type
         if self.opponent is None:
             # Multiplayer mode returns two observations for player 1 and 2
-            return self._get_observation(1), self._get_observation(2)
+            return rgb2gray(self._get_observation(1)), self._get_observation(2)
         else:
             # Singleplayer mode only returns the observation depending on which
             # side the agent is playing. The other player is not getting an
@@ -577,7 +578,8 @@ class Wimblepong(gym.core.Env):
         self._draw_scores()
 
         # Display the frame
-        frame = cv2.cvtColor(np.uint8(self.screen), cv2.COLOR_BGR2RGB)
+        frame = cv2.cvtColor(np.uint8(self.screen), cv2.COLOR_BGR2RGB) #original
+        #frame = cv2.cvtColor(np.uint8(self.screen), cv2.COLOR_BGR2GRAY)
         frame = cv2.resize(frame, (self.SCREEN_RESOLUTION[1]*self.scale,
                             self.SCREEN_RESOLUTION[0]*self.scale),
                             interpolation=cv2.INTER_NEAREST)
