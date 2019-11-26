@@ -7,10 +7,13 @@ from random import randint
 import pickle
 import gym
 import numpy as np
+import torch
 import argparse
+import warnings
 import wimblepong
-import agent
-import dqn.dqn_agent
+import agent_jack
+
+warnings.filterwarnings("ignore", category=UserWarning)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")
@@ -20,37 +23,62 @@ parser.add_argument("--scale", type=int, help="Scale of the rendered game", defa
 args = parser.parse_args()
 
 # Make the environment
-env = gym.make("WimblepongSimpleAI-v0")
+env = gym.make("WimblepongVisualSimpleAI-v0")
 env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 
 # Number of episodes/games to play
 episodes = 10  # 100000
-n_actions = env.action_space
+n_actions = 3
 replay_buffer_size = 100000
 batch_size = 64
 hidden_size = 512
 gamma = 0.99
 lr = 1e-3
 frame_stacks = 4
+glie_a = 50
+TARGET_UPDATE = 250
+dagger_files = ['./mem9-1.pickle',
+                './mem7-3.pickle',
+                './mem6-4.pickle',
+                './mem6-5.pickle']
 
 # Define the player
 player_id = 1
 # Set up the player here. We used the SimpleAI that does not take actions for now
-player = dqn.dqn_agent.Agent(env, player_id, n_actions, replay_buffer_size=replay_buffer_size,
-                 batch_size=batch_size, hidden_size=hidden_size, gamma=gamma, lr=lr, save_memory=True,
-                 frame_stacks=frame_stacks)
+player = agent_jack.Agent(env=env,
+                          player_id=player_id,
+                          n_actions=n_actions,
+                          replay_buffer_size=replay_buffer_size,
+                          batch_size=batch_size,
+                          hidden_size=hidden_size,
+                          gamma=gamma,
+                          lr=lr,
+                          save_memory=True,
+                          frame_stacks=frame_stacks,
+                          dagger_files=dagger_files)
 
 # Housekeeping
 states = []
 win1 = 0
-
-for i in range(0,episodes):
+frames_list = []
+total_frames = 0
+for i in range(0, episodes):
     done = False
+    if i / episodes < 0.5:
+        eps = glie_a / (glie_a+i*2)
+    else:
+        eps = 0
+    obs = env.reset()
+    frames = 0
     while not done:
         # action1 is zero because in this example no agent is playing as player 0
-        action1 = player.get_action()
+        action1 = player.get_action(obs, eps)
         ob1, rew1, done, info = env.step(action1)
+
+        player.store_transition(obs, action1, ob1, rew1, done)
+        player.update_network()
+        obs = ob1
         if args.housekeeping:
             states.append(ob1)
         # Count the wins
@@ -66,5 +94,19 @@ for i in range(0,episodes):
                 plt.legend(["Player", "Opponent", "Ball X", "Ball Y", "Ball vx", "Ball vy"])
                 plt.show()
                 states.clear()
-            print("episode {} over. Broken WR: {:.3f}".format(i, win1/(i+1)))
+            print(f"episode {i} over. Total wins: {win1}. Frames {total_frames}")
 
+
+        frames += 1
+        total_frames += 1
+        if total_frames % TARGET_UPDATE == 0:
+            player.update_target_network()
+
+        if total_frames % 100000 == 0:
+            torch.save(player.policy_net.state_dict(),
+                       "weights_%s_%d.mdl" % ("Jack-v0", total_frames))
+    frames_list.append(frames)
+    if i % round(episodes*0.1, 0) == 0:
+        x = np.arange(len(frames_list))
+        plt.plot(x, frames_list)
+        plt.show()

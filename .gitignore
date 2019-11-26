@@ -1,0 +1,6 @@
+__pycache__
+.idea
+.pytest_cache
+ac2
+venv
+*.pickle
