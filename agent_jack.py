@@ -88,7 +88,7 @@ class Agent(object):
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters(), lr=lr)
-        self.memory = ReplayMemory(replay_buffer_size, dagger_files)
+        self.memory = ReplayMemory(replay_buffer_size, dagger_files, frame_stacks)
         self.batch_size = batch_size
         self.gamma = gamma
 

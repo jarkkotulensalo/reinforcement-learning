@@ -10,11 +10,13 @@ Transition = namedtuple('Transition',
 
 
 class ReplayMemory(object):
-    def __init__(self, capacity, dagger_files=None):
+    def __init__(self, capacity, dagger_files=None, frame_stacks=4):
         self.capacity = capacity
         self.memory = []
         self.position = 0
         self.dagger_files = dagger_files
+        self.frame_stacks = frame_stacks
+        self.prev_obs = None
         self._load_memory()
 
     def __len__(self):
@@ -26,7 +28,18 @@ class ReplayMemory(object):
             for fpath in self.dagger_files:
                 with open(fpath, 'rb') as f:
                     transitions += pickle.load(f)
-                    print(len(transitions))
+            print(f"Total dagger memory frames {len(transitions)}")
+
+            for i, transition in enumerate(transitions):
+                # print(transition.state.shape)
+                processed_state = self._preprocess(transition.state)
+                # print(f"processed_state {processed_state.shape}")
+                transitions[i] = Transition(processed_state,
+                                            transition.action,
+                                            transition.next_state,
+                                            transition.reward,
+                                            transition.done)
+
         return transitions
 
     def push(self, *args):
@@ -47,12 +60,12 @@ class ReplayMemory(object):
         # print(f"observation {observation.shape}")
         # observation = observation[::2, ::2].mean(axis=-1)
 
-        observation = np.dot(observation, [0.2989, 0.5870, 0.1140]).astype(np.uint8)  # convert to greyscale
+        # observation = np.dot(observation, [0.2989, 0.5870, 0.1140]).astype(np.uint8)  # convert to greyscale
         # print(f"observation {observation.shape}")
         observation = observation[::2, ::2]
-        #print(f"observation {observation.shape}")
+        # print(f"observation {observation.shape}")
         observation = np.expand_dims(observation, axis=0)
-        #print(f"observation {observation.shape}")
+        # print(f"observation {observation.shape}")
 
         if self.prev_obs is None:
             self.prev_obs = observation
