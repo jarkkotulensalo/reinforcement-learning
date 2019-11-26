@@ -32,13 +32,44 @@ class ReplayMemory(object):
 
             for i, transition in enumerate(transitions):
                 # print(transition.state.shape)
-                processed_state = self._preprocess(transition.state)
-                # print(f"processed_state {processed_state.shape}")
-                transitions[i] = Transition(processed_state,
-                                            transition.action,
-                                            transition.next_state,
-                                            transition.reward,
-                                            transition.done)
+                if i % 4 == 0:
+                    processed_state = self._preprocess(transition.state)
+                    # print(f"processed_state {processed_state.shape}")
+                    transitions[i] = Transition(processed_state,
+                                                transition.action,
+                                                transition.next_state,
+                                                transition.reward,
+                                                transition.done)
+            for i, transition in enumerate(transitions):
+                # print(transition.state.shape)
+                if i % 4 == 1:
+                    processed_state = self._preprocess(transition.state)
+                    # print(f"processed_state {processed_state.shape}")
+                    transitions[i] = Transition(processed_state,
+                                                transition.action,
+                                                transition.next_state,
+                                                transition.reward,
+                                                transition.done)
+            for i, transition in enumerate(transitions):
+                # print(transition.state.shape)
+                if i % 4 == 2:
+                    processed_state = self._preprocess(transition.state)
+                    # print(f"processed_state {processed_state.shape}")
+                    transitions[i] = Transition(processed_state,
+                                                transition.action,
+                                                transition.next_state,
+                                                transition.reward,
+                                                transition.done)
+            for i, transition in enumerate(transitions):
+                # print(transition.state.shape)
+                if i % 4 == 3:
+                    processed_state = self._preprocess(transition.state)
+                    # print(f"processed_state {processed_state.shape}")
+                    transitions[i] = Transition(processed_state,
+                                                transition.action,
+                                                transition.next_state,
+                                                transition.reward,
+                                                transition.done)
 
         return transitions
 

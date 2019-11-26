@@ -21,10 +21,6 @@ from wimblepong import Wimblepong
 class DQN(nn.Module):
     def __init__(self, action_space_dim, hidden=512, frame_stacks=4):
         super(DQN, self).__init__()
-        #self.hidden = hidden
-        #self.fc1 = nn.Linear(6400, hidden)
-        #self.fc2 = nn.Linear(hidden, action_space_dim)
-
         self.action_space = action_space_dim
         self.hidden = hidden
 
@@ -35,26 +31,20 @@ class DQN(nn.Module):
         self.conv2 = torch.nn.Conv2d(32, 64, 4, 2)
         self.conv3 = torch.nn.Conv2d(64, 64, 3, 1)
         self.reshaped_size = 64 * 9 * 9
-        # self.reshaped_size = 90112
-
         self.fc1 = torch.nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = torch.nn.Linear(self.hidden, action_space_dim)
 
     def forward(self, x):
-        x = self.conv1(x)
+        x = F.relu(self.conv1(x))
         #print(f"forward x {x.shape}")
-        x = F.relu(x)
-        x = self.conv2(x)
+        x = F.relu(self.conv2(x))
         #print(f"forward x {x.shape}")
-        x = F.relu(x)
-        x = self.conv3(x)
+        x = F.relu(self.conv3(x))
         #print(f"forward x {x.shape}")
-        x = F.relu(x)
         x = x.reshape(x.shape[0], self.reshaped_size)
         #print(f"forward x {x.shape}")
-        x = self.fc1(x)
+        x = F.relu(self.fc1(x))
         # print(f"forward x {x.shape}")
-        x = F.relu(x)
         x = self.fc2(x)
         # print(f"forward x {x.shape}")
         return x
