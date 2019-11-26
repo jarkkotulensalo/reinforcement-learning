@@ -28,7 +28,7 @@ env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 
 # Number of episodes/games to play
-episodes = 20000  # 100000
+episodes = 100000  # 100000
 n_actions = 3
 replay_buffer_size = 100000
 batch_size = 64
