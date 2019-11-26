@@ -22,7 +22,7 @@ import torchvision.transforms as transforms
 
 
 class DQN(nn.Module):
-    def __init__(self, action_space_dim, hidden=32, batch_size=64):
+    def __init__(self, action_space_dim, hidden=32, frame_stacks=2):
         super(DQN, self).__init__()
         #self.hidden = hidden
         #self.fc1 = nn.Linear(6400, hidden)
@@ -30,8 +30,8 @@ class DQN(nn.Module):
 
         self.action_space = action_space_dim
         self.hidden = hidden
-        self.batch_size = batch_size
-        self.conv1 = torch.nn.Conv2d(in_channels=4,
+
+        self.conv1 = torch.nn.Conv2d(in_channels=frame_stacks,
                                      out_channels=32,
                                      kernel_size=8,
                                      stride=4)
@@ -89,7 +89,8 @@ class ReplayMemory(object):
 
 class Agent(object):
     def __init__(self, env, player_id, n_actions, replay_buffer_size=50000,
-                 batch_size=32, hidden_size=16, gamma=0.98):
+                 batch_size=32, hidden_size=16, gamma=0.98, lr=1e-3, save_memory=True,
+                 frame_stacks=2):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
         self.env = env
@@ -99,18 +100,21 @@ class Agent(object):
         # only in straight lines
         self.bpe = 4
         self.name = "kingfisher"
+        self.frame_stacks = frame_stacks
 
         self.train_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Training with {self.train_device}")
         # self.train_device = torch.device("cpu")
         self.prev_obs = None
+        self.save_memory = save_memory
 
+        self.batch_size = batch_size
         self.n_actions = n_actions
-        self.policy_net = DQN(n_actions, hidden_size, batch_size).to(self.train_device)
-        self.target_net = DQN(n_actions, hidden_size, batch_size).to(self.train_device)
+        self.policy_net = DQN(n_actions, hidden_size, self.frame_stacks).to(self.train_device)
+        self.target_net = DQN(n_actions, hidden_size, self.frame_stacks).to(self.train_device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
-        self.optimizer = optim.RMSprop(self.policy_net.parameters(), lr=1e-3)
+        self.optimizer = optim.RMSprop(self.policy_net.parameters(), lr=lr)
         self.memory = ReplayMemory(replay_buffer_size)
         self.batch_size = batch_size
         self.gamma = gamma
@@ -133,16 +137,26 @@ class Agent(object):
         # to Transition of batch-arrays.
         batch = Transition(*zip(*transitions))
 
-        # Compute a mask of non-final states and concatenate the batch elements
-        # (a final state would've been the one after which simulation ended)
-        # noinspection PyTypeChecker
-        non_final_mask = 1-torch.tensor(batch.done, dtype=torch.uint8)
-        non_final_next_states = [s for nonfinal,s in zip(non_final_mask,
-                                     batch.next_state) if nonfinal > 0]
-        non_final_next_states = torch.stack(non_final_next_states).to(self.train_device)
-        state_batch = torch.stack(batch.state).to(self.train_device)
-        action_batch = torch.cat(batch.action).to(self.train_device)
-        reward_batch = torch.cat(batch.reward).to(self.train_device)
+        if self.save_memory:
+            non_final_mask = 1-torch.tensor(batch.done, dtype=torch.uint8, device=self.train_device)
+            non_final_next_states = [torch.tensor(s, dtype=torch.float, device=self.train_device) for nonfinal,s in
+                                     zip(non_final_mask, batch.next_state) if nonfinal > 0]
+            non_final_next_states = torch.stack(non_final_next_states).squeeze(1)
+            state_batch = torch.tensor(batch.state, dtype=torch.float, device=self.train_device).squeeze(1)
+            action_batch = torch.tensor(batch.action, device=self.train_device).unsqueeze(1)
+            reward_batch = torch.tensor(batch.reward, dtype=torch.float, device=self.train_device)
+
+        else:
+            # Compute a mask of non-final states and concatenate the batch elements
+            # (a final state would've been the one after which simulation ended)
+            # noinspection PyTypeChecker
+            non_final_mask = 1-torch.tensor(batch.done, dtype=torch.uint8)
+            non_final_next_states = [s for nonfinal,s in zip(non_final_mask,
+                                         batch.next_state) if nonfinal > 0]
+            non_final_next_states = torch.stack(non_final_next_states).to(self.train_device)
+            state_batch = torch.stack(batch.state).to(self.train_device)
+            action_batch = torch.cat(batch.action).to(self.train_device)
+            reward_batch = torch.cat(batch.reward).to(self.train_device)
 
         # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
         # columns of actions taken. These are the actions which would've been taken
@@ -194,11 +208,15 @@ class Agent(object):
     def store_transition(self, observation, action, next_obs, reward, done):
         state = self.preprocess(observation)
         next_state = self.preprocess(next_obs)
+        # print(f"state.shape {state.shape}")
 
-        action = torch.Tensor([[action]]).long()
-        reward = torch.tensor([reward], dtype=torch.float32)
-        next_state = torch.from_numpy(next_state).float()
-        state = torch.from_numpy(state).float()
+        if not self.save_memory:
+            action = torch.Tensor([[action]]).long()
+            reward = torch.tensor([reward], dtype=torch.float32)
+            next_state = torch.from_numpy(next_state).float()
+            state = torch.from_numpy(state).float()
+
+        # print(f"state.shape {state.shape}")
         self.memory.push(state, action, next_state, reward, done)
 
     def get_name(self):
@@ -229,10 +247,6 @@ class Agent(object):
         #print(f"observation {observation.shape}")
         observation = np.expand_dims(observation, axis=0)
         #print(f"observation {observation.shape}")
-        # observation[observation == 43] = 0 # erase background (background type 1)
-        #print(f"observation {observation.shape}")
-        # observation[observation != 0] = 1  # everything else (paddles, ball) just set to 1
-        #print(f"observation {observation.shape}")
 
         if self.prev_obs is None:
             self.prev_obs = observation
@@ -242,18 +256,16 @@ class Agent(object):
         # print(f"stack_ob {stack_ob.shape}")
 
         # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
-        while stack_ob.shape[0] < 4:
+        while stack_ob.shape[0] < self.frame_stacks:
             stack_ob = self._stack_frames(stack_ob, observation)
             # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
         # print(f"stack_ob {stack_ob.shape}")
         # self.prev_obs = np.delete(stack_ob, (0), axis=0)
 
-        self.prev_obs = stack_ob[1:4, :, :]
+        self.prev_obs = stack_ob[1:self.frame_stacks, :, :]
         # print(f"self.prev_obs.shape[0] {self.prev_obs.shape[0]}")
-        # print(np.mean(self.prev_obs))
 
         # print(f"stack_ob {stack_ob.shape}")
-        # stack_ob = torch.from_numpy(stack_ob).float().unsqueeze(0)
         return stack_ob
 
     def _stack_frames(self, stack_ob, obs):
