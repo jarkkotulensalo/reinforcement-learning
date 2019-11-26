@@ -88,8 +88,8 @@ class ReplayMemory(object):
 
 
 class Agent(object):
-    def __init__(self, env, player_id, n_actions, replay_buffer_size=50000,
-                 batch_size=32, hidden_size=16, gamma=0.98, lr=1e-3, save_memory=True,
+    def __init__(self, env, player_id, n_actions, replay_buffer_size=100000,
+                 batch_size=64, hidden_size=512, gamma=0.99, lr=1e-3, save_memory=True,
                  frame_stacks=2):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
@@ -99,7 +99,7 @@ class Agent(object):
         # Ball prediction error, introduce noise such that SimpleAI reflects not
         # only in straight lines
         self.bpe = 4
-        self.name = "kingfisher"
+        self.name = "jack_the_dagger"
         self.frame_stacks = frame_stacks
 
         self.train_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -225,12 +225,12 @@ class Agent(object):
         """
         return self.name
 
-    def load_model(self):
+    def load_model(self, fpath):
         """
         state_dict = torch.load(args.test)
         :return:
         """
-        weights = torch.load("model.mdl")
+        weights = torch.load(fpath)
         self.target_net.load_state_dict(weights, strict=False)
         return
 
@@ -276,10 +276,3 @@ class Agent(object):
         :return:
         """
         return np.concatenate((stack_ob, obs), axis=0)
-
-def prepro(self, I):
-    """ prepro 210x160x3 uint8 frame into 6400 (80x80) 1D float vector """
-    I = I[::2, ::2, 0]  # downsample by factor of 2
-    I[I == 43] = 0  # erase background (background type 1)
-    I[I != 0] = 1  # everything else (paddles, ball) just set to 1
-    return I.astype(np.float).ravel()

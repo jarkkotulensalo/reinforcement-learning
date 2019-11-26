@@ -1,2 +1,2 @@
 
-import train_pong_ai
+import train_jack_pong
