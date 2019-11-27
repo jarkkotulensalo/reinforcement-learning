@@ -28,9 +28,9 @@ env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 
 # Number of episodes/games to play
-episodes = 20000  # 100000
+episodes = 100000  # 100000
 n_actions = 3
-replay_buffer_size = 100000
+replay_buffer_size = 50000
 batch_size = 64
 hidden_size = 512
 gamma = 0.99
@@ -70,6 +70,7 @@ for i in range(0, episodes):
         eps = glie_a / (glie_a+i*2)
     else:
         eps = 0.0
+
     obs = env.reset()
     frames = 0
     while not done:
@@ -102,7 +103,12 @@ for i in range(0, episodes):
 
         frames += 1
         total_frames += 1
-        
+
+        if total_frames % 10000 == 0:
+            print(f"Model saved weights_Jack-v0_{total_frames}.mdl")
+            torch.save(player.policy_net.state_dict(),
+                       "weights_%s_%d.mdl" % ("Jack-v0", total_frames))
+
         if total_frames % 100000 == 0:
             print(f"Model saved weights_Jack-v0_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
