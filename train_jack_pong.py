@@ -28,7 +28,7 @@ env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 
 # Number of episodes/games to play
-episodes = 100000  # 100000
+episodes = 20000  # 100000
 n_actions = 3
 replay_buffer_size = 100000
 batch_size = 64
@@ -36,12 +36,13 @@ hidden_size = 512
 gamma = 0.99
 lr = 1e-4
 frame_stacks = 4
-glie_a = 5000
+glie_a = 500
 TARGET_UPDATE = 250
 dagger_files = ['./mem9-1.pickle',
                 './mem7-3.pickle',
                 './mem6-4.pickle',
-                './mem6-5.pickle']
+                './mem6-5.pickle',
+                './mem25-6.pickle']
 
 # Define the player
 player_id = 1
@@ -96,17 +97,18 @@ for i in range(0, episodes):
                 states.clear()
             print(f"episode {i} over. Total wins: {win1}. Frames {total_frames}")
 
-
-        frames += 1
-        total_frames += 1
         if total_frames % TARGET_UPDATE == 0:
             player.update_target_network()
 
+        frames += 1
+        total_frames += 1
+        
         if total_frames % 100000 == 0:
+            print(f"Model saved weights_Jack-v0_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
                        "weights_%s_%d.mdl" % ("Jack-v0", total_frames))
     frames_list.append(frames)
-    if i % round(episodes*0.1, 0) == 0:
+    if i % 1000 == 0:
         x = np.arange(len(frames_list))
         plt.plot(x, frames_list)
         plt.show()
