@@ -28,7 +28,7 @@ env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 
 # Number of episodes/games to play
-episodes = 100000  # 100000
+episodes = 20000  # 100000
 n_actions = 3
 replay_buffer_size = 50000
 batch_size = 64
@@ -37,7 +37,7 @@ gamma = 0.99
 lr = 1e-4
 frame_stacks = 4
 glie_a = 500
-TARGET_UPDATE = 250
+TARGET_UPDATE = 10000
 dagger_files = ['./mem9-1.pickle',
                 './mem7-3.pickle',
                 './mem6-4.pickle',
@@ -68,9 +68,9 @@ for i in range(0, episodes):
     done = False
     if i / episodes < 0.5:
         eps = glie_a / (glie_a+i*2)
+        eps = 0.1
     else:
         eps = 0.0
-
     obs = env.reset()
     frames = 0
     while not done:
@@ -114,7 +114,7 @@ for i in range(0, episodes):
             torch.save(player.policy_net.state_dict(),
                        "weights_%s_%d.mdl" % ("Jack-v0", total_frames))
     frames_list.append(frames)
-    if i % 1000 == 0:
+    if i % 1000 == 0 and i > 0:
         x = np.arange(len(frames_list))
         plt.plot(x, frames_list)
         plt.show()
