@@ -23,8 +23,8 @@ env = gym.make("WimblepongVisualMultiplayer-v0")
 env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 # Number of episodes/games to play
-episodes = 10
-LOADPATH = "./weights_Jack-v0_310000.mdl"
+episodes = 20
+LOADPATH = "./weights_Jack-v0_360000.mdl"
 # Define the player IDs for both SimpleAI agents
 player_id = 1
 opponent_id = 3 - player_id
@@ -51,4 +51,4 @@ for i in range(0, episodes):
         if not args.headless:
             env.render()
         if done:
-            print("episode {} over. Broken WR: {:.3f}".format(i, win1/(i+1)))
+            print(f"episode {i} over. Wins {win1}/{i}")
