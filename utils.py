@@ -32,18 +32,20 @@ class ReplayMemory(object):
 
             transitions_processed = []
             total_i = 0
+            processed_state = self._preprocess(transitions[0].state.cpu().data.numpy())
             for i, transition in enumerate(transitions):
                 if i % self.frame_stacks == 0:
                     # print(f"(transition.state.shape {transition.state.shape}")
-                    processed_state = self._preprocess(transition.state.cpu().data.numpy())
-                    processed_next_state = self._preprocess_next(transition.next_state.cpu().data.numpy())
+                    processed_next_state = self._preprocess(transition.next_state.cpu().data.numpy())
+                    self.push(processed_state,
+                              transition.action,
+                              processed_next_state,
+                              transition.reward,
+                              transition.done)
+
+                    processed_state = processed_next_state
                     # print(f"processed_state {processed_state.shape}")
 
-                    self.push(processed_state,
-                                transition.action,
-                                processed_next_state,
-                                transition.reward,
-                                transition.done)
                     total_i += 1
             print(f"Total dagger output memory frames {total_i}")
         return
