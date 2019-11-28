@@ -28,50 +28,25 @@ class ReplayMemory(object):
             for fpath in self.dagger_files:
                 with open(fpath, 'rb') as f:
                     transitions += pickle.load(f)
-            print(f"Total dagger memory frames {len(transitions)}")
+            print(f"Total dagger input memory frames {len(transitions)}")
 
+            transitions_processed = []
+            total_i = 0
             for i, transition in enumerate(transitions):
-                # print(transition.state.shape)
-                if i % 4 == 0:
-                    processed_state = self._preprocess(transition.state)
+                if i % self.frame_stacks == 0:
+                    # print(f"(transition.state.shape {transition.state.shape}")
+                    processed_state = self._preprocess(transition.state.cpu().data.numpy())
+                    processed_next_state = self._preprocess_next(transition.next_state.cpu().data.numpy())
                     # print(f"processed_state {processed_state.shape}")
-                    transitions[i] = Transition(processed_state,
-                                                transition.action,
-                                                transition.next_state,
-                                                transition.reward,
-                                                transition.done)
-            for i, transition in enumerate(transitions):
-                # print(transition.state.shape)
-                if i % 4 == 1:
-                    processed_state = self._preprocess(transition.state)
-                    # print(f"processed_state {processed_state.shape}")
-                    transitions[i] = Transition(processed_state,
-                                                transition.action,
-                                                transition.next_state,
-                                                transition.reward,
-                                                transition.done)
-            for i, transition in enumerate(transitions):
-                # print(transition.state.shape)
-                if i % 4 == 2:
-                    processed_state = self._preprocess(transition.state)
-                    # print(f"processed_state {processed_state.shape}")
-                    transitions[i] = Transition(processed_state,
-                                                transition.action,
-                                                transition.next_state,
-                                                transition.reward,
-                                                transition.done)
-            for i, transition in enumerate(transitions):
-                # print(transition.state.shape)
-                if i % 4 == 3:
-                    processed_state = self._preprocess(transition.state)
-                    # print(f"processed_state {processed_state.shape}")
-                    transitions[i] = Transition(processed_state,
-                                                transition.action,
-                                                transition.next_state,
-                                                transition.reward,
-                                                transition.done)
 
-        return transitions
+                    self.push(processed_state,
+                                transition.action,
+                                processed_next_state,
+                                transition.reward,
+                                transition.done)
+                    total_i += 1
+            print(f"Total dagger output memory frames {total_i}")
+        return
 
     def push(self, *args):
         """Saves a transition."""
@@ -114,6 +89,18 @@ class ReplayMemory(object):
         self.prev_obs = stack_ob[1:self.frame_stacks, :, :]
         # print(f"self.prev_obs.shape[0] {self.prev_obs.shape[0]}")
 
+        # print(f"stack_ob {stack_ob.shape}")
+        return stack_ob
+
+    def _preprocess_next(self, observation):
+
+        observation = observation[::2, ::2]
+        # print(f"observation {observation.shape}")
+        observation = np.expand_dims(observation, axis=0)
+        # print(f"observation {observation.shape}")
+
+        #print(f"self.prev_obs {self.prev_obs.shape}")
+        stack_ob = np.concatenate((self.prev_obs, observation), axis=0)
         # print(f"stack_ob {stack_ob.shape}")
         return stack_ob
 

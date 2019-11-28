@@ -201,7 +201,9 @@ class Agent(object):
                 state = torch.from_numpy(state).float().unsqueeze(0).to(self.train_device)
                 # print(f"state {state.shape}")
                 q_values = self.policy_net(state)
-                return torch.argmax(q_values).item()
+                chosen_action = torch.argmax(q_values).item()
+                # print(f"Chosen action is {chosen_action}")
+                return chosen_action
         else:
             return random.randrange(self.n_actions)
 

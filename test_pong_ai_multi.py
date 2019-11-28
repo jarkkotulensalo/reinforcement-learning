@@ -24,30 +24,28 @@ env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 # Number of episodes/games to play
 episodes = 10
-LOADPATH = "./weights_Jack-v0_100000.mdl"
+LOADPATH = "./weights_Jack-v0_310000.mdl"
 # Define the player IDs for both SimpleAI agents
 player_id = 1
 opponent_id = 3 - player_id
 opponent = wimblepong.SimpleAi(env, opponent_id)
 player = agent_jack.Agent(env, player_id)
-
 print(player.get_name())
 player.load_model(LOADPATH)
 # Set the names for both SimpleAIs
 env.set_names(player.get_name(), opponent.get_name())
 
 win1 = 0
-for i in range(0,episodes):
+for i in range(0, episodes):
     done = False
     obs1, obs2 = env.reset()
     while not done:
         # Get the actions from both SimpleAIs
-        action1 = player.get_action(obs1, epsilon=0.0)
+        action1 = player.get_action(obs1)
         action2 = opponent.get_action()
         # Step the environment and get the rewards and new observations
         (ob1, ob2), (rew1, rew2), done, info = env.step((action1, action2))
         obs1 = ob1
-        obs2 = ob2
         if rew1 == 10:
             win1 += 1
         if not args.headless:
