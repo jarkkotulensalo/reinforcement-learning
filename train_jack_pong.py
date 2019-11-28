@@ -37,7 +37,7 @@ gamma = 0.99
 lr = 1e-4
 frame_stacks = 4
 EXP_EPISODES = 10000
-glie_a = 0.1 / 0.9 * EXP_EPISODES
+glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
 
 TARGET_UPDATE_FRAMES = 2500  # https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
 dagger_files = ['./mem9-1.pickle',
@@ -61,6 +61,16 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
+x = np.arange(episodes)
+y = np.zeros(episodes)
+for i in range(0, episodes):
+    if i < EXP_EPISODES:
+        y[i] = glie_a / (glie_a + i)
+    else:
+        y[i] = 0.1
+plt.plot(x, y)
+plt.show()
+
 # Housekeeping
 states = []
 win1 = 0
@@ -68,7 +78,7 @@ frames_list = []
 total_frames = 0
 for i in range(0, episodes):
     done = False
-    if total_frames < EXP_EPISODES:
+    if i < EXP_EPISODES:
         eps = glie_a / (glie_a + i)
     else:
         eps = 0.1
