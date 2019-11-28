@@ -28,16 +28,18 @@ env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 
 # Number of episodes/games to play
-episodes = 20000  # 100000
+episodes = 100000  # 100000
 n_actions = 3
-replay_buffer_size = 100000
+replay_buffer_size = 1000000
 batch_size = 32
 hidden_size = 512
 gamma = 0.99
 lr = 1e-4
-frame_stacks = 2
-glie_a = 500
-TARGET_UPDATE = 2500
+frame_stacks = 4
+EXP_EPISODES = 10000
+glie_a = 0.1 / 0.9 * EXP_EPISODES
+
+TARGET_UPDATE_FRAMES = 2500  # https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
 dagger_files = ['./mem9-1.pickle',
                 './mem7-3.pickle',
                 './mem6-4.pickle',
@@ -66,11 +68,10 @@ frames_list = []
 total_frames = 0
 for i in range(0, episodes):
     done = False
-    if i / episodes < 0.5:
-        eps = glie_a / (glie_a+i*2)
-        eps = 0.1
+    if total_frames < EXP_EPISODES:
+        eps = glie_a / (glie_a + i)
     else:
-        eps = 0.0
+        eps = 0.1
     obs = env.reset()
     frames = 0
     while not done:
@@ -102,7 +103,7 @@ for i in range(0, episodes):
         frames += 1
         total_frames += 1
 
-        if total_frames % TARGET_UPDATE == 0:
+        if total_frames % TARGET_UPDATE_FRAMES == 0:
             player.update_target_network()
 
         if total_frames == 10000:
