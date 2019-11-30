@@ -129,4 +129,4 @@ for i in range(0, episodes):
     if i % 1000 == 0 and i > 0:
         x = np.arange(len(frames_list))
         plt.plot(x, frames_list)
-        plt.show()
+        plt.savefig(f"episodes_{i}.png")
