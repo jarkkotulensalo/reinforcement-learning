@@ -46,6 +46,8 @@ dagger_files = ['./mem9-1.pickle',
                 './mem6-5.pickle',
                 './mem25-6.pickle']
 
+dagger_files = None
+
 # Define the player
 player_id = 1
 # Set up the player here. We used the SimpleAI that does not take actions for now
@@ -60,6 +62,9 @@ player = agent_jack.Agent(env=env,
                           save_memory=True,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
+
+LOADPATH = "./weights_Jack-v0_200000.mdl"
+player.load_model(LOADPATH)
 
 x = np.arange(episodes)
 y = np.zeros(episodes)
