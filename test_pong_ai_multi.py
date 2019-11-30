@@ -24,7 +24,7 @@ env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 # Number of episodes/games to play
 episodes = 20
-LOADPATH = "./weights_Jack-v0_360000.mdl"
+LOADPATH = "./weights_Jack-v0_200000.mdl"
 # Define the player IDs for both SimpleAI agents
 player_id = 1
 opponent_id = 3 - player_id
