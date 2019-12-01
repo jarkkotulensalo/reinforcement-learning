@@ -30,7 +30,7 @@ env.unwrapped.fps = args.fps
 # Number of episodes/games to play
 episodes = 100000  # 100000
 n_actions = 3
-replay_buffer_size = 500000
+replay_buffer_size = 200000
 batch_size = 32
 hidden_size = 512
 gamma = 0.99
@@ -63,7 +63,7 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
-LOADPATH = "./weights_Jack-v0_200000.mdl"
+LOADPATH = "./weights_Jack-v0_1000000.mdl"
 player.load_model(LOADPATH)
 
 x = np.arange(episodes)
