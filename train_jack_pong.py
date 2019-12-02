@@ -46,7 +46,7 @@ dagger_files = ['./mem9-1.pickle',
                 './mem6-5.pickle',
                 './mem25-6.pickle']
 
-dagger_files = None
+# dagger_files = None
 
 # Define the player
 player_id = 1
