@@ -58,7 +58,7 @@ class DQN(nn.Module):
 
 
 class Agent(object):
-    def __init__(self, env, player_id, n_actions=3, replay_buffer_size=200000,
+    def __init__(self, env, player_id, n_actions=3, replay_buffer_size=100000,
                  batch_size=32, hidden_size=512, gamma=0.99, lr=1e-4, save_memory=True,
                  frame_stacks=2, dagger_files=None):
         if type(env) is not Wimblepong:

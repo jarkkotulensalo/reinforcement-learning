@@ -30,7 +30,7 @@ env.unwrapped.fps = args.fps
 # Number of episodes/games to play
 episodes = 100000  # 100000
 n_actions = 3
-replay_buffer_size = 200000
+replay_buffer_size = 100000
 batch_size = 32
 hidden_size = 512
 gamma = 0.99
