@@ -37,7 +37,7 @@ class DQN(nn.Module):
 
     def init_weights(self):
         for m in self.modules():
-            if type(m) is torch.nn.Linear() or type(m) is torch.nn.Conv2d():
+            if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
                 torch.nn.init.normal_(m.weight)
                 torch.nn.init.zeros_(m.bias)
 
