@@ -35,7 +35,7 @@ batch_size = 32
 hidden_size = 512
 gamma = 0.99
 lr = 1e-4
-frame_stacks = 4
+frame_stacks = 2
 EXP_EPISODES = 10000
 glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
 
@@ -63,8 +63,8 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
-LOADPATH = "./weights_Jack-v0_1640000.mdl"
-player.load_model(LOADPATH)
+# LOADPATH = "./weights_Jack-v0_1640000.mdl"
+# player.load_model(LOADPATH)
 
 x = np.arange(episodes)
 y = np.zeros(episodes)

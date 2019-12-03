@@ -33,6 +33,13 @@ class DQN(nn.Module):
         self.reshaped_size = 64 * 9 * 9
         self.fc1 = torch.nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = torch.nn.Linear(self.hidden, action_space_dim)
+        self.init_weights()
+
+    def init_weights(self):
+        for m in self.modules():
+            if type(m) is torch.nn.Linear() or type(m) is torch.nn.Conv2d():
+                torch.nn.init.normal_(m.weight)
+                torch.nn.init.zeros_(m.bias)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -53,7 +60,7 @@ class DQN(nn.Module):
 class Agent(object):
     def __init__(self, env, player_id, n_actions=3, replay_buffer_size=200000,
                  batch_size=32, hidden_size=512, gamma=0.99, lr=1e-4, save_memory=True,
-                 frame_stacks=4, dagger_files=None):
+                 frame_stacks=2, dagger_files=None):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
         self.env = env

@@ -10,7 +10,7 @@ Transition = namedtuple('Transition',
 
 
 class ReplayMemory(object):
-    def __init__(self, capacity, dagger_files=None, frame_stacks=4):
+    def __init__(self, capacity, dagger_files=None, frame_stacks=2):
         self.capacity = capacity
         self.memory = []
         self.position = 0
