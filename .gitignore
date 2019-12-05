@@ -1,6 +1,7 @@
-__pycache__
-.idea
-.pytest_cache
-ac2
-venv
+
 *.pickle
+*.mdl
+.DS_Store
+.ipynb_checkpoints/*
+*/__pycache__/*
+__pycache__/*
