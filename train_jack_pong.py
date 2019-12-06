@@ -63,8 +63,8 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
-# LOADPATH = "./weights_Jack-v0_1640000.mdl"
-# player.load_model(LOADPATH)
+LOADPATH = "./weights_Jack-v2_3000000.mdl"
+player.load_model(LOADPATH)
 
 x = np.arange(episodes)
 y = np.zeros(episodes)
