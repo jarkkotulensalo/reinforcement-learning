@@ -33,13 +33,15 @@ class DQN(nn.Module):
         self.reshaped_size = 64 * 9 * 9
         self.fc1 = torch.nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = torch.nn.Linear(self.hidden, action_space_dim)
-        self.init_weights()
+        self._init_weights()
 
-    def init_weights(self):
+    def _init_weights(self):
         for m in self.modules():
             if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
+                # print(f"init weights")
                 torch.nn.init.normal_(m.weight)
                 torch.nn.init.zeros_(m.bias)
+
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -191,7 +193,7 @@ class Agent(object):
 
     def _stack_frames(self, stack_ob, obs):
         """
-        Stack a sequence of frames into one array to until 4 frames is stacked
+        Stack a sequence of frames into one array to until n frames is stacked
         :param stack_ob:
         :param obs:
         :return:
