@@ -83,7 +83,7 @@ frames_list = []
 total_frames = 0
 for i in range(0, episodes):
     done = False
-    if i < EXP_EPISODES:
+    if i < EXP_EPISODES - 1:
         eps = glie_a / (glie_a + i)
     else:
         eps = 0.1
