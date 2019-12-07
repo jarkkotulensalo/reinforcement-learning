@@ -39,7 +39,7 @@ class DQN(nn.Module):
         for m in self.modules():
             if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
                 # print(f"init weights")
-                torch.nn.init.normal_(m.weight)
+                torch.nn.init.kaiming_normal_(m.weight)
                 torch.nn.init.zeros_(m.bias)
 
 
@@ -65,6 +65,8 @@ class Agent(object):
                  frame_stacks=2, dagger_files=None):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
+
+        print(f"testing with {frame_stacks} fram stacks")
         self.env = env
         # Set the player id that determines on which side the ai is going to play
         self.player_id = player_id
@@ -200,7 +202,7 @@ class Agent(object):
         """
         return np.concatenate((stack_ob, obs), axis=0)
 
-    def get_action(self, observation, epsilon=0.3):
+    def get_action(self, observation, epsilon=0.1):
         # epsilon = 0.1
         sample = random.random()
         if sample > epsilon:
@@ -228,6 +230,7 @@ class Agent(object):
         :return:
         """
         weights = torch.load(fpath)
+        self.policy_net.load_state_dict(weights, strict=False)
         self.target_net.load_state_dict(weights, strict=False)
         return
 

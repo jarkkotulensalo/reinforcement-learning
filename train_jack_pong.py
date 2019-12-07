@@ -36,7 +36,7 @@ hidden_size = 512
 gamma = 0.99
 lr = 1e-4
 frame_stacks = 2
-EXP_EPISODES = 10000
+EXP_EPISODES = 1
 glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
 
 TARGET_UPDATE_FRAMES = 2500  # https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
@@ -47,7 +47,6 @@ dagger_files = ['./mem9-1.pickle',
                 './mem25-6.pickle']
 
 # dagger_files = None
-
 # Define the player
 player_id = 1
 # Set up the player here. We used the SimpleAI that does not take actions for now
@@ -63,9 +62,10 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
-LOADPATH = "./weights_Jack-v2_3000000.mdl"
+LOADPATH = "./weights_Jack-v2_4300000.mdl"
 player.load_model(LOADPATH)
 
+"""
 x = np.arange(episodes)
 y = np.zeros(episodes)
 for i in range(0, episodes):
@@ -75,7 +75,7 @@ for i in range(0, episodes):
         y[i] = 0.1
 plt.plot(x, y)
 plt.show()
-
+"""
 # Housekeeping
 states = []
 win1 = 0
@@ -114,22 +114,22 @@ for i in range(0, episodes):
                 states.clear()
             if i % 10 == 0:
                 print(f"episode {i} over. Total wins: {win1}. Frames {total_frames}")
-
         frames += 1
         total_frames += 1
 
-        if total_frames % TARGET_UPDATE_FRAMES == 0:
+        if total_frames % TARGET_UPDATE_FRAMES == 1:
+            print(f"Update target network")
             player.update_target_network()
 
         if total_frames == 10000:
-            print(f"Model saved weights_Jack-v0_{total_frames}.mdl")
+            print(f"Model saved weights_Jack-v{frame_stacks}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       "weights_%s_%d.mdl" % ("Jack-v0", total_frames))
+                       f"weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
         if total_frames % 100000 == 0:
-            print(f"Model saved weights_Jack-v0_{total_frames}.mdl")
+            print(f"Model saved weights_Jack-v{frame_stacks}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       "weights_%s_%d.mdl" % ("Jack-v0", total_frames))
+                       f"weights_Jack-v{frame_stacks}_{total_frames}.mdl")
     frames_list.append(frames)
     if i % 1000 == 0 and i > 0:
         x = np.arange(len(frames_list))
