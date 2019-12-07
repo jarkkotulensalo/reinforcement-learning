@@ -113,7 +113,7 @@ for i in range(0, episodes):
                 plt.show()
                 states.clear()
             if i % 10 == 0:
-                print(f"episode {i} over. Total wins: {win1}. Frames {total_frames}")
+                print(f"episode {i} over. Total wins: {win1}. Frames {total_frames} with eps {eps}")
         frames += 1
         total_frames += 1
 

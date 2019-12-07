@@ -231,7 +231,6 @@ class Agent(object):
         """
         weights = torch.load(fpath)
         self.policy_net.load_state_dict(weights, strict=False)
-        self.target_net.load_state_dict(weights, strict=False)
         return
 
     def reset(self):
