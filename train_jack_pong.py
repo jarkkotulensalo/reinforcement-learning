@@ -115,6 +115,8 @@ for i in range(0, episodes):
                 plt.legend(["Player", "Opponent", "Ball X", "Ball Y", "Ball vx", "Ball vy"])
                 plt.show()
                 states.clear()
+
+            rewards_list.append(rewards)
             if i % 100 == 0 and i > 99:
                 rew_avg = round(np.average(rewards_list[i - 99: i]), 2)
                 print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. Frames {total_frames} with eps {eps}")
@@ -133,9 +135,7 @@ for i in range(0, episodes):
             torch.save(player.policy_net.state_dict(),
                        f"weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
-    rewards_list.append(rewards)
     player.update_target_network()
-
     frames_list.append(frames)
     if i % 1000 == 0 and i > 0:
         x = np.arange(len(frames_list))
