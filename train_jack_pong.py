@@ -63,7 +63,7 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
-LOADPATH = "./weights_Jack-v2_1000000.mdl"
+LOADPATH = "./weights_Jack-v2_5300000.mdl"
 player.load_model(LOADPATH)
 
 """
