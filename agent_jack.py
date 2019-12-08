@@ -39,7 +39,7 @@ class DQN(nn.Module):
         for m in self.modules():
             if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
                 # print(f"init weights")
-                torch.nn.init.kaiming_normal_(m.weight)
+                torch.nn.init.xavier_uniform(m.weight)
                 torch.nn.init.zeros_(m.bias)
 
 
