@@ -33,9 +33,10 @@ class DQN(nn.Module):
         self.reshaped_size = 64 * 9 * 9
         self.fc1 = torch.nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = torch.nn.Linear(self.hidden, action_space_dim)
-        self.apply(self._init_weights)
+        self._init_weights()
 
     def _init_weights(self):
+        print(f"Initialisation of weights with xavier")
         for m in self.modules():
             if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
                 # print(f"init weights")
