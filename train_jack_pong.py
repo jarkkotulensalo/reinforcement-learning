@@ -39,7 +39,8 @@ frame_stacks = 2
 EXP_EPISODES = 1
 glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
 
-TARGET_UPDATE_FRAMES = 2500  # https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
+# https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
+TARGET_UPDATE_FRAMES = 2500
 dagger_files = ['./mem9-1.pickle',
                 './mem7-3.pickle',
                 './mem6-4.pickle',
@@ -108,7 +109,7 @@ for i in range(0, episodes):
         if not args.headless:
             env.render()
         if done:
-            observation= env.reset()
+            observation = env.reset()
             plt.close()  # Hides game window
             if args.housekeeping:
                 plt.plot(states)
@@ -119,8 +120,8 @@ for i in range(0, episodes):
             rewards_list.append(rewards)
             if i % 100 == 0 and i > 99:
                 rew_avg = round(np.average(rewards_list[i - 99: i]), 2)
-                print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. Frames {total_frames} with eps {eps}")
-
+                print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. "
+                      f"Frames {total_frames} with eps {eps}")
 
         frames += 1
         total_frames += 1
@@ -138,6 +139,8 @@ for i in range(0, episodes):
     player.update_target_network()
     frames_list.append(frames)
     if i % 1000 == 0 and i > 0:
-        x = np.arange(len(frames_list))
-        plt.plot(x, frames_list)
+        x = np.arange(len(rewards_list))
+        plt.plot(x, rewards_list)
+        plt.xlabel(f"Number of episodes")
+        plt.ylabel(f"Reward")
         plt.savefig(f"episodes_{i}.png")
