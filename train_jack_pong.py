@@ -115,7 +115,7 @@ for i in range(0, episodes):
                 plt.legend(["Player", "Opponent", "Ball X", "Ball Y", "Ball vx", "Ball vy"])
                 plt.show()
                 states.clear()
-            if i % 100 == 0:
+            if i % 100 == 0 and i > 99:
                 rew_avg = round(np.average(rewards_list[i - 99: i]), 2)
                 print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. Frames {total_frames} with eps {eps}")
 
