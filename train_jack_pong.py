@@ -62,7 +62,7 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
-LOADPATH = "./weights_Jack-v2_4300000.mdl"
+LOADPATH = "./weights_Jack-v2_1000000.mdl"
 player.load_model(LOADPATH)
 
 """
@@ -81,6 +81,7 @@ states = []
 win1 = 0
 frames_list = []
 total_frames = 0
+rewards_list = []
 for i in range(0, episodes):
     done = False
     if i < EXP_EPISODES - 1:
@@ -89,6 +90,7 @@ for i in range(0, episodes):
         eps = 0.1
     obs = env.reset()
     frames = 0
+    rewards = 0
     while not done:
         # action1 is zero because in this example no agent is playing as player 0
         action1 = player.get_action(obs, eps)
@@ -100,6 +102,7 @@ for i in range(0, episodes):
         if args.housekeeping:
             states.append(ob1)
         # Count the wins
+        rewards += rew1
         if rew1 == 10:
             win1 += 1
         if not args.headless:
@@ -112,14 +115,13 @@ for i in range(0, episodes):
                 plt.legend(["Player", "Opponent", "Ball X", "Ball Y", "Ball vx", "Ball vy"])
                 plt.show()
                 states.clear()
-            if i % 10 == 0:
-                print(f"episode {i} over. Total wins: {win1}. Frames {total_frames} with eps {eps}")
+            if i % 100 == 0:
+                rew_avg = round(np.average(rewards_list[i - 99: i]), 2)
+                print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. Frames {total_frames} with eps {eps}")
+
+
         frames += 1
         total_frames += 1
-
-        if total_frames % TARGET_UPDATE_FRAMES == 1:
-            print(f"Update target network")
-            player.update_target_network()
 
         if total_frames == 10000:
             print(f"Model saved weights_Jack-v{frame_stacks}_{total_frames}.mdl")
@@ -130,6 +132,10 @@ for i in range(0, episodes):
             print(f"Model saved weights_Jack-v{frame_stacks}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
                        f"weights_Jack-v{frame_stacks}_{total_frames}.mdl")
+
+    rewards_list.append(rewards)
+    player.update_target_network()
+
     frames_list.append(frames)
     if i % 1000 == 0 and i > 0:
         x = np.arange(len(frames_list))

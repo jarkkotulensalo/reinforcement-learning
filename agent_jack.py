@@ -202,7 +202,7 @@ class Agent(object):
         """
         return np.concatenate((stack_ob, obs), axis=0)
 
-    def get_action(self, observation, epsilon=0.1):
+    def get_action(self, observation, epsilon=0.05):
         # epsilon = 0.1
         sample = random.random()
         if sample > epsilon:
