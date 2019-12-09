@@ -40,7 +40,7 @@ class DQN(nn.Module):
         for m in self.modules():
             if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
                 # print(f"init weights")
-                torch.nn.init.xavier_uniform(m.weight)
+                torch.nn.init.xavier_uniform_(m.weight)
                 torch.nn.init.zeros_(m.bias)
 
 
@@ -62,7 +62,7 @@ class DQN(nn.Module):
 
 class Agent(object):
     def __init__(self, env, player_id, n_actions=3, replay_buffer_size=100000,
-                 batch_size=32, hidden_size=512, gamma=0.99, lr=1e-4, save_memory=True,
+                 batch_size=32, hidden_size=512, gamma=0.99, lr=2.5e-4, save_memory=True,
                  frame_stacks=2, dagger_files=None):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
@@ -89,7 +89,7 @@ class Agent(object):
         self.target_net = DQN(n_actions, hidden_size, frame_stacks).to(self.train_device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
-        self.optimizer = optim.RMSprop(self.policy_net.parameters(), lr=lr)
+        self.optimizer = optim.RMSprop(self.policy_net.parameters(), lr=lr, eps=1e-2, momentum=0.95)
         self.memory = ReplayMemory(replay_buffer_size, dagger_files, frame_stacks)
         self.batch_size = batch_size
         self.gamma = gamma
@@ -203,7 +203,7 @@ class Agent(object):
         """
         return np.concatenate((stack_ob, obs), axis=0)
 
-    def get_action(self, observation, epsilon=0.05):
+    def get_action(self, observation, epsilon=0.3):
         # epsilon = 0.1
         sample = random.random()
         if sample > epsilon:

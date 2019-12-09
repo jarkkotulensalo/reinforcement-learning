@@ -34,9 +34,9 @@ replay_buffer_size = 100000
 batch_size = 32
 hidden_size = 512
 gamma = 0.99
-lr = 1e-4
+lr = 2.5e-4
 frame_stacks = 2
-EXP_EPISODES = 10000
+EXP_EPISODES = 50000
 glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
 
 # https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
