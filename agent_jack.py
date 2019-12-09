@@ -40,7 +40,7 @@ class DQN(nn.Module):
         for m in self.modules():
             if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
                 # print(f"init weights")
-                torch.nn.init.xavier_uniform_(m.weight)
+                torch.nn.init.xavier_uniform_(m.weight, gain=nn.init.calculate_gain('relu'))
                 torch.nn.init.zeros_(m.bias)
 
 
