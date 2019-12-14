@@ -146,9 +146,9 @@ for i in range(0, episodes):
 
 
     if (i % 10000 == 0 and i > 0) or (i == 1000):
-        fig, [ax1, ax2] = plt.subplots(nrows=1, ncols=2)
+        fig, [ax1, ax2] = plt.subplots(nrows=2, ncols=1, figsize=(6.4, 4.8 * 2))
         x = np.arange(len(rewards_avg_list))
-
+        x = x * 200
         ax1.plot(x, rewards_avg_list)
         ax1.set_xlabel(f"Number of episodes")
         ax1.set_ylabel(f"Avg. reward for 100 episodes")
@@ -158,3 +158,4 @@ for i in range(0, episodes):
         ax2.set_ylabel(f"Avg. frame duration for 100 episodes")
 
         fig.savefig(f"rewards_{i}_episodes.png")
+        print(f"Learning plot saved after episode {i}.")
