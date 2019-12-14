@@ -34,9 +34,9 @@ replay_buffer_size = 100000
 batch_size = 32
 hidden_size = 512
 gamma = 0.99
-lr = 1e-4
+lr = 2.5e-4
 frame_stacks = 2
-EXP_EPISODES = 1
+EXP_EPISODES = 50000
 glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
 
 # https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
@@ -63,10 +63,6 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files)
 
-LOADPATH = "./weights_Jack-v2_5300000.mdl"
-player.load_model(LOADPATH)
-
-"""
 x = np.arange(episodes)
 y = np.zeros(episodes)
 for i in range(0, episodes):
@@ -74,15 +70,20 @@ for i in range(0, episodes):
         y[i] = glie_a / (glie_a + i)
     else:
         y[i] = 0.1
+
+plt.ylabel('Exploration')
+plt.xlabel('Number of episodes')
 plt.plot(x, y)
-plt.show()
-"""
+plt.savefig(f"exploration_{episodes}.png")
+
 # Housekeeping
 states = []
 win1 = 0
 frames_list = []
+frames_avg_list = []
 total_frames = 0
 rewards_list = []
+rewards_avg_list = []
 for i in range(0, episodes):
     done = False
     if i < EXP_EPISODES - 1:
@@ -108,6 +109,9 @@ for i in range(0, episodes):
             win1 += 1
         if not args.headless:
             env.render()
+
+        frames += 1
+        total_frames += 1
         if done:
             observation = env.reset()
             plt.close()  # Hides game window
@@ -117,14 +121,18 @@ for i in range(0, episodes):
                 plt.show()
                 states.clear()
 
-            rewards_list.append(rewards)
+            rewards_list.append(rew1)
+            frames_list.append(frames)
             if i % 100 == 0 and i > 99:
                 rew_avg = round(np.average(rewards_list[i - 99: i]), 2)
+                frames_avg = round(np.average(frames_list[i - 99: i]), 2)
                 print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. "
-                      f"Frames {total_frames} with eps {eps}")
+                      f"Frames {frames_avg} with eps {eps}")
+                rewards_avg_list.append(rew_avg)
+                frames_avg_list.append(frames_avg)
 
-        frames += 1
-        total_frames += 1
+        if total_frames == TARGET_UPDATE_FRAMES:
+            player.update_target_network()
 
         if total_frames == 10000:
             print(f"Model saved weights_Jack-v{frame_stacks}_{total_frames}.mdl")
@@ -136,11 +144,17 @@ for i in range(0, episodes):
             torch.save(player.policy_net.state_dict(),
                        f"weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
-    player.update_target_network()
-    frames_list.append(frames)
-    if i % 1000 == 0 and i > 0:
-        x = np.arange(len(rewards_list))
-        plt.plot(x, rewards_list)
-        plt.xlabel(f"Number of episodes")
-        plt.ylabel(f"Reward")
-        plt.savefig(f"episodes_{i}.png")
+
+    if (i % 10000 == 0 and i > 0) or (i == 1000):
+        fig, [ax1, ax2] = plt.subplots(nrows=1, ncols=2)
+        x = np.arange(len(rewards_avg_list))
+
+        ax1.plot(x, rewards_avg_list)
+        ax1.xlabel(f"Number of episodes")
+        ax1.ylabel(f"Avg. reward for 100 episodes")
+
+        ax2.plot(x, frames_avg_list)
+        ax2.xlabel(f"Number of episodes")
+        ax2.ylabel(f"Avg. frame duration for 100 episodes")
+
+        fig.savefig(f"rewards_{i}_episodes.png")
