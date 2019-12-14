@@ -34,19 +34,19 @@ class ReplayMemory(object):
             total_i = 0
             processed_state = self._preprocess(transitions[0].state.cpu().data.numpy())
             for i, transition in enumerate(transitions):
-                if i % 3 == 0:  # 2-5 acc. to random frame skipping in env
+                #if i % 3 == 0:  # 2-5 acc. to random frame skipping in env
                     # print(f"(transition.state.shape {transition.state.shape}")
-                    processed_next_state = self._preprocess(transition.next_state.cpu().data.numpy())
-                    self.push(processed_state,
-                              transition.action,
-                              processed_next_state,
-                              transition.reward,
-                              transition.done)
+                processed_next_state = self._preprocess(transition.next_state.cpu().data.numpy())
+                self.push(processed_state,
+                          transition.action,
+                          processed_next_state,
+                          transition.reward,
+                          transition.done)
 
-                    processed_state = processed_next_state
-                    # print(f"processed_state {processed_state.shape}")
+                processed_state = processed_next_state
+                # print(f"processed_state {processed_state.shape}")
 
-                    total_i += 1
+                total_i += 1
             print(f"Total dagger output memory frames {total_i}")
         return
 

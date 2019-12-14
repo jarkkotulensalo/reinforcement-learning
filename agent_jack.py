@@ -63,7 +63,7 @@ class DQN(nn.Module):
 class Agent(object):
     def __init__(self, env, player_id, n_actions=3, replay_buffer_size=100000,
                  batch_size=32, hidden_size=512, gamma=0.99, lr=2.5e-4, save_memory=True,
-                 frame_stacks=2, dagger_files=None):
+                 frame_stacks=2, dagger_files=None, double_dqn=False):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
 
@@ -93,6 +93,7 @@ class Agent(object):
         self.memory = ReplayMemory(replay_buffer_size, dagger_files, frame_stacks)
         self.batch_size = batch_size
         self.gamma = gamma
+        self.double_dqn = double_dqn
 
     def update_network(self, updates=1):
         for _ in range(updates):
@@ -147,9 +148,15 @@ class Agent(object):
         # This is merged based on the mask, such that we'll have either the expected
         # state value or 0 in case the state was final.
         next_state_values = torch.zeros(self.batch_size).to(self.train_device)
-        next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0].detach()
+        # Double DQN - Compute V(s_{t+1}) for all next states.
+        if self.double_dqn:
+            _, next_state_actions = self.policy_net(next_state_values).max(1, keepdim=True)
+            next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_state_actions)
+        else:
+            next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0].detach()
 
         # Task 4: TODO: Compute the expected Q values
+        # next_state_values.volatile = False
         expected_state_action_values = reward_batch + self.gamma * next_state_values
 
         # Compute Huber loss

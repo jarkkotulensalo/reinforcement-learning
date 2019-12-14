@@ -23,7 +23,7 @@ env = gym.make("WimblepongVisualMultiplayer-v0")
 env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
 # Number of episodes/games to play
-episodes = 100
+
 
 # Define the player IDs for both SimpleAI agents
 player_id = 1
@@ -32,10 +32,12 @@ opponent = wimblepong.SimpleAi(env, opponent_id)
 player = agent_jack.Agent(env, player_id)
 print(player.get_name())
 
-LOADPATH = "./weights_Jack-v2_4300000.mdl"
+LOADPATH = "./weights_Jack-v2_5300000.mdl"
 player.load_model(LOADPATH)
 # Set the names for both SimpleAIs
 env.set_names(player.get_name(), opponent.get_name())
+
+episodes = 500
 
 win1 = 0
 for i in range(0, episodes):
