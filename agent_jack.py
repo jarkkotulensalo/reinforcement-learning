@@ -150,7 +150,7 @@ class Agent(object):
         next_state_values = torch.zeros(self.batch_size).to(self.train_device)
         # Double DQN - Compute V(s_{t+1}) for all next states.
         if self.double_dqn:
-            _, next_state_actions = self.policy_net(next_state_values).max(1, keepdim=True)
+            next_state_actions = self.policy_net(next_state_values).max(1, keepdim=True)
             next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_state_actions)
         else:
             next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0].detach()
