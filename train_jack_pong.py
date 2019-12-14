@@ -127,7 +127,7 @@ for i in range(0, episodes):
                 rew_avg = round(np.average(rewards_list[i - 99: i]), 2)
                 frames_avg = round(np.average(frames_list[i - 99: i]), 2)
                 print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. "
-                      f"Frames {frames_avg} with eps {eps}")
+                      f"Frames {frames_avg} with eps {round(eps, 3)}")
                 rewards_avg_list.append(rew_avg)
                 frames_avg_list.append(frames_avg)
 
@@ -150,11 +150,11 @@ for i in range(0, episodes):
         x = np.arange(len(rewards_avg_list))
 
         ax1.plot(x, rewards_avg_list)
-        ax1.xlabel(f"Number of episodes")
-        ax1.ylabel(f"Avg. reward for 100 episodes")
+        ax1.set_xlabel(f"Number of episodes")
+        ax1.set_ylabel(f"Avg. reward for 100 episodes")
 
         ax2.plot(x, frames_avg_list)
-        ax2.xlabel(f"Number of episodes")
-        ax2.ylabel(f"Avg. frame duration for 100 episodes")
+        ax2.set_xlabel(f"Number of episodes")
+        ax2.set_ylabel(f"Avg. frame duration for 100 episodes")
 
         fig.savefig(f"rewards_{i}_episodes.png")
