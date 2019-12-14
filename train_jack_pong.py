@@ -123,9 +123,9 @@ for i in range(0, episodes):
 
             rewards_list.append(rew1)
             frames_list.append(frames)
-            if i % 100 == 0 and i > 99:
-                rew_avg = round(np.average(rewards_list[i - 99: i]), 2)
-                frames_avg = round(np.average(frames_list[i - 99: i]), 2)
+            if i % 200 == 0 and i > 200:
+                rew_avg = round(np.average(rewards_list[i - 199: i]), 2)
+                frames_avg = round(np.average(frames_list[i - 199: i]), 2)
                 print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. "
                       f"Frames {frames_avg} with eps {round(eps, 3)}")
                 rewards_avg_list.append(rew_avg)
