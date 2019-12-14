@@ -239,6 +239,7 @@ class Agent(object):
         """
         weights = torch.load(fpath)
         self.policy_net.load_state_dict(weights, strict=False)
+        print(f"Loaded model from {fpath}")
         return
 
     def reset(self):
