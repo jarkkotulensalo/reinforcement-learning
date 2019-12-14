@@ -157,5 +157,5 @@ for i in range(0, episodes):
         ax2.set_xlabel(f"Number of episodes")
         ax2.set_ylabel(f"Avg. frame duration for 100 episodes")
 
-        fig.savefig(f"rewards_{i}_episodes.png")
+        fig.savefig(f"rewards_{i}.png")
         print(f"Learning plot saved after episode {i}.")

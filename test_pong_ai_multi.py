@@ -32,12 +32,12 @@ opponent = wimblepong.SimpleAi(env, opponent_id)
 player = agent_jack.Agent(env, player_id)
 print(player.get_name())
 
-LOADPATH = "./weights_Jack-v2_5300000.mdl"
+LOADPATH = "./weights_Jack-v2_200000.mdl"
 player.load_model(LOADPATH)
 # Set the names for both SimpleAIs
 env.set_names(player.get_name(), opponent.get_name())
 
-episodes = 500
+episodes = 20
 
 win1 = 0
 for i in range(0, episodes):

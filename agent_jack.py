@@ -63,7 +63,7 @@ class DQN(nn.Module):
 class Agent(object):
     def __init__(self, env, player_id, n_actions=3, replay_buffer_size=100000,
                  batch_size=32, hidden_size=512, gamma=0.99, lr=2.5e-4, save_memory=True,
-                 frame_stacks=2, dagger_files=None, double_dqn=False):
+                 frame_stacks=2, dagger_files=None, double_dqn=True):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
 
