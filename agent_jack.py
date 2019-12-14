@@ -140,6 +140,8 @@ class Agent(object):
         # print("state_batch")
         # print(state_batch.shape)
         # print(f"self.policy_net(state_batch) {self.policy_net(state_batch).shape}")
+        #print(f"1. state_batch {state_batch.shape}")
+        #print(f"2. action_batch {action_batch.shape}")
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
         # print(f"state_action_values {state_action_values.shape}")
         # Compute V(s_{t+1}) for all next states.
@@ -151,7 +153,9 @@ class Agent(object):
         # Double DQN - Compute V(s_{t+1}) for all next states.
         if self.double_dqn:
             _, next_state_actions = self.policy_net(non_final_next_states).max(1, keepdim=True)
-            next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_state_actions)
+            #print(f"1. non_final_next_states {non_final_next_states.shape}")
+            #print(f"2. next_state_actions {next_state_actions.shape}")
+            next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_state_actions).squeeze(1)
         else:
             next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0].detach()
 
