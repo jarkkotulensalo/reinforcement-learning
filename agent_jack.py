@@ -67,7 +67,7 @@ class Agent(object):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
 
-        print(f"testing with {frame_stacks} fram stacks")
+        print(f"testing with {frame_stacks} frame stacks")
         self.env = env
         # Set the player id that determines on which side the ai is going to play
         self.player_id = player_id
