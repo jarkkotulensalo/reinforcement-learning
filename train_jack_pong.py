@@ -61,7 +61,9 @@ player = agent_jack.Agent(env=env,
                           lr=lr,
                           save_memory=True,
                           frame_stacks=frame_stacks,
-                          dagger_files=dagger_files)
+                          dagger_files=dagger_files,
+                          double_dqn=True,
+                          load_path="")
 
 x = np.arange(episodes)
 y = np.zeros(episodes)

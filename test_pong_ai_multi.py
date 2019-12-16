@@ -28,12 +28,11 @@ env.unwrapped.fps = args.fps
 # Define the player IDs for both SimpleAI agents
 player_id = 1
 opponent_id = 3 - player_id
+LOADPATH = "./weights_Jack-v2_400000.mdl"
 opponent = wimblepong.SimpleAi(env, opponent_id)
-player = agent_jack.Agent(env, player_id)
+player = agent_jack.Agent(env, player_id, load_path=LOADPATH)
 print(player.get_name())
 
-LOADPATH = "./weights_Jack-v2_200000.mdl"
-player.load_model(LOADPATH)
 # Set the names for both SimpleAIs
 env.set_names(player.get_name(), opponent.get_name())
 
