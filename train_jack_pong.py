@@ -11,7 +11,7 @@ import torch
 import argparse
 import warnings
 import wimblepong
-import agent_jack
+from double_dqn import agent_jack
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -30,7 +30,7 @@ env.unwrapped.fps = args.fps
 # Number of episodes/games to play
 episodes = 100000  # 100000
 n_actions = 3
-replay_buffer_size = 100000
+replay_buffer_size = 500000
 batch_size = 32
 hidden_size = 512
 gamma = 0.99
@@ -40,12 +40,15 @@ EXP_EPISODES = 50000
 glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
 
 # https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756
-TARGET_UPDATE_FRAMES = 2500
-dagger_files = ['./mem9-1.pickle',
-                './mem7-3.pickle',
-                './mem6-4.pickle',
-                './mem6-5.pickle',
-                './mem25-6.pickle']
+TARGET_UPDATE_FRAMES = 10000
+dagger_files = ['./dagger/mem9-1.pickle',
+                './dagger/mem7-3.pickle',
+                './dagger/mem6-4.pickle',
+                './dagger/mem6-5.pickle',
+                './dagger/mem25-6.pickle']
+
+load_path = "weights_Jack-v4_3000000.mdl"
+# load_path = ""
 
 # dagger_files = None
 # Define the player
@@ -63,7 +66,7 @@ player = agent_jack.Agent(env=env,
                           frame_stacks=frame_stacks,
                           dagger_files=dagger_files,
                           double_dqn=True,
-                          load_path="")
+                          load_path=load_path)
 
 x = np.arange(episodes)
 y = np.zeros(episodes)
@@ -139,12 +142,12 @@ for i in range(0, episodes):
         if total_frames == 10000:
             print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       f"weights_Jack-v{1}_{total_frames}.mdl")
+                       f"pretrained_models\weights_Jack-v{1}_{total_frames}.mdl")
 
         if total_frames % 100000 == 0:
             print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       f"weights_Jack-v{1}_{total_frames}.mdl")
+                       f"pretrained_models\weights_Jack-v{1}_{total_frames}.mdl")
 
 
     if (i % 10000 == 0 and i > 0) or (i == 1000):
@@ -159,5 +162,5 @@ for i in range(0, episodes):
         ax2.set_xlabel(f"Number of episodes")
         ax2.set_ylabel(f"Avg. frame duration for 100 episodes")
 
-        fig.savefig(f"rewards_{i}.png")
+        fig.savefig(f"plots\rewards_{i}.png")
         print(f"Learning plot saved after episode {i}.")
