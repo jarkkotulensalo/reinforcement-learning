@@ -79,7 +79,7 @@ for i in range(0, episodes):
 plt.ylabel('Exploration')
 plt.xlabel('Number of episodes')
 plt.plot(x, y)
-plt.savefig(f"exploration_{episodes}.png")
+plt.savefig(f"./plots/exploration_{episodes}.png")
 
 # Housekeeping
 states = []
@@ -143,12 +143,12 @@ for i in range(0, episodes):
         if total_frames == 10000:
             print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       f"pretrained_models\weights_Jack-v{frame_stacks}_{total_frames}.mdl")
+                       f"./pretrained_models/weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
         if total_frames % 100000 == 0:
             print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       f"pretrained_models\weights_Jack-v{frame_stacks}_{total_frames}.mdl")
+                       f"./pretrained_models/weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
 
     if (i % 10000 == 0 and i > 0) or (i == 1000):
@@ -163,5 +163,5 @@ for i in range(0, episodes):
         ax2.set_xlabel(f"Number of episodes")
         ax2.set_ylabel(f"Avg. frame duration for 100 episodes")
 
-        fig.savefig(f"plots\rewards_{i}.png")
+        fig.savefig(f"./plots/rewards_{i}.png")
         print(f"Learning plot saved after episode {i}.")
