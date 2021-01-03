@@ -2,15 +2,11 @@
 This is an example on how to use the two player Wimblepong environment
 with two SimpleAIs playing against each other
 """
-import matplotlib.pyplot as plt
-from random import randint
-import pickle
+
 import gym
-import numpy as np
 import argparse
 import wimblepong
-from PIL import Image
-import agent_jack
+from double_dqn import agent_jack
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")
@@ -28,7 +24,7 @@ env.unwrapped.fps = args.fps
 # Define the player IDs for both SimpleAI agents
 player_id = 1
 opponent_id = 3 - player_id
-LOADPATH = "./weights_Jack-v2_400000.mdl"
+LOADPATH = "./pretrained_models/weights_Jack-v4_3000000.mdl"
 opponent = wimblepong.SimpleAi(env, opponent_id)
 player = agent_jack.Agent(env, player_id, load_path=LOADPATH)
 print(player.get_name())
