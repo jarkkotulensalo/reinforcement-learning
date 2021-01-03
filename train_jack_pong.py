@@ -11,7 +11,7 @@ import torch
 import argparse
 import warnings
 import wimblepong
-from double_dqn import agent_jack
+import agent_jack
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
