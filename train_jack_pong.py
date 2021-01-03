@@ -47,7 +47,7 @@ dagger_files = ['./dagger/mem9-1.pickle',
                 './dagger/mem6-5.pickle',
                 './dagger/mem25-6.pickle']
 
-load_path = "./pretrained_models/weights_Jack-v4_3000000.mdl"
+# load_path = "./pretrained_models/weights_Jack-v4_3000000.mdl"
 load_path = ""
 
 # dagger_files = None
@@ -136,7 +136,8 @@ for i in range(0, episodes):
                 rewards_avg_list.append(rew_avg)
                 frames_avg_list.append(frames_avg)
 
-        if total_frames % TARGET_UPDATE_FRAMES == 0:
+        if total_frames % TARGET_UPDATE_FRAMES == 1:
+            print(f"Updated target network at {total_frames} frames.")
             player.update_target_network()
 
         if total_frames == 10000:

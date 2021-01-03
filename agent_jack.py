@@ -19,26 +19,26 @@ from wimblepong import Wimblepong
 
 
 class DQN(nn.Module):
-    def __init__(self, action_space_dim, hidden=512, frame_stacks=4):
+    def __init__(self, action_space_dim, hidden=512, frame_stacks=2):
         super(DQN, self).__init__()
         self.action_space = action_space_dim
         self.hidden = hidden
 
-        self.conv1 = torch.nn.Conv2d(in_channels=frame_stacks,
+        self.conv1 = nn.Conv2d(in_channels=frame_stacks,
                                      out_channels=32,
                                      kernel_size=8,
                                      stride=4)
-        self.conv2 = torch.nn.Conv2d(32, 64, 4, 2)
-        self.conv3 = torch.nn.Conv2d(64, 64, 3, 1)
+        self.conv2 = nn.Conv2d(32, 64, 4, 2)
+        self.conv3 = nn.Conv2d(64, 64, 3, 1)
         self.reshaped_size = 64 * 9 * 9
-        self.fc1 = torch.nn.Linear(self.reshaped_size, self.hidden)
-        self.fc2 = torch.nn.Linear(self.hidden, action_space_dim)
+        self.fc1 = nn.Linear(self.reshaped_size, self.hidden)
+        self.fc2 = nn.Linear(self.hidden, action_space_dim)
         self._init_weights()
 
     def _init_weights(self):
         print(f"Initialisation of weights with xavier")
         for m in self.modules():
-            if type(m) is torch.nn.Linear or type(m) is torch.nn.Conv2d:
+            if type(m) is nn.Linear or type(m) is nn.Conv2d:
                 # print(f"init weights")
                 torch.nn.init.xavier_uniform_(m.weight, gain=nn.init.calculate_gain('relu'))
                 torch.nn.init.zeros_(m.bias)
@@ -46,15 +46,10 @@ class DQN(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
-        #print(f"forward x {x.shape}")
         x = F.relu(self.conv2(x))
-        #print(f"forward x {x.shape}")
         x = F.relu(self.conv3(x))
-        #print(f"forward x {x.shape}")
         x = x.reshape(x.shape[0], self.reshaped_size)
-        #print(f"forward x {x.shape}")
         x = F.relu(self.fc1(x))
-        # print(f"forward x {x.shape}")
         x = self.fc2(x)
         # print(f"forward x {x.shape}")
         return x
@@ -146,12 +141,14 @@ class Agent(object):
         #print(f"2. action_batch {action_batch.shape}")
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
         # print(f"state_action_values {state_action_values.shape}")
+
         # Compute V(s_{t+1}) for all next states.
         # Expected values of actions for non_final_next_states are computed based
         # on the "older" target_net; selecting their best reward with max(1)[0].
         # This is merged based on the mask, such that we'll have either the expected
         # state value or 0 in case the state was final.
         next_state_values = torch.zeros(self.batch_size).to(self.train_device)
+
         # Double DQN - Compute V(s_{t+1}) for all next states.
         if self.double_dqn:
             _, next_state_actions = self.policy_net(non_final_next_states).max(1, keepdim=True)
@@ -161,7 +158,7 @@ class Agent(object):
         else:
             next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0].detach()
 
-        # Task 4: TODO: Compute the expected Q values
+        # Task 4: Compute the expected Q values
         # next_state_values.volatile = False
         expected_state_action_values = reward_batch + self.gamma * next_state_values
 
