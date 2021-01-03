@@ -47,8 +47,8 @@ dagger_files = ['./dagger/mem9-1.pickle',
                 './dagger/mem6-5.pickle',
                 './dagger/mem25-6.pickle']
 
-load_path = "weights_Jack-v4_3000000.mdl"
-# load_path = ""
+load_path = "./pretrained_models/weights_Jack-v4_3000000.mdl"
+load_path = ""
 
 # dagger_files = None
 # Define the player
