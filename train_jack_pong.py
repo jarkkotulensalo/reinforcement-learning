@@ -136,7 +136,7 @@ for i in range(0, episodes):
                 rewards_avg_list.append(rew_avg)
                 frames_avg_list.append(frames_avg)
 
-        if total_frames == TARGET_UPDATE_FRAMES:
+        if total_frames % TARGET_UPDATE_FRAMES == 0:
             player.update_target_network()
 
         if total_frames == 10000:
