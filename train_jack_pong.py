@@ -143,12 +143,12 @@ for i in range(0, episodes):
         if total_frames == 10000:
             print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       f"pretrained_models\weights_Jack-v{1}_{total_frames}.mdl")
+                       f"pretrained_models\weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
         if total_frames % 100000 == 0:
             print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
-                       f"pretrained_models\weights_Jack-v{1}_{total_frames}.mdl")
+                       f"pretrained_models\weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
 
     if (i % 10000 == 0 and i > 0) or (i == 1000):
