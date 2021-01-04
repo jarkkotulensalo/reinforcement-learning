@@ -30,7 +30,7 @@ env.unwrapped.fps = args.fps
 # Number of episodes/games to play
 episodes = 100000  # 100000
 n_actions = 3
-replay_buffer_size = 200000
+replay_buffer_size = 100000
 batch_size = 32
 hidden_size = 512
 gamma = 0.99
@@ -70,11 +70,11 @@ player = agent_jack.Agent(env=env,
 
 x = np.arange(episodes)
 y = np.zeros(episodes)
-for i in range(0, episodes):
-    if i < EXP_EPISODES:
-        y[i] = glie_a / (glie_a + i)
+for episode_num in range(0, episodes):
+    if episode_num < EXP_EPISODES:
+        y[episode_num] = glie_a / (glie_a + episode_num)
     else:
-        y[i] = 0.1
+        y[episode_num] = 0.1
 
 plt.ylabel('Exploration')
 plt.xlabel('Number of episodes')
@@ -89,10 +89,10 @@ frames_avg_list = []
 total_frames = 0
 rewards_list = []
 rewards_avg_list = []
-for i in range(0, episodes):
+for episode_num in range(0, episodes):
     done = False
-    if i < EXP_EPISODES - 1:
-        eps = glie_a / (glie_a + i)
+    if episode_num < EXP_EPISODES - 1:
+        eps = glie_a / (glie_a + episode_num)
     else:
         eps = 0.1
     obs = env.reset()
@@ -128,16 +128,18 @@ for i in range(0, episodes):
 
             rewards_list.append(rew1)
             frames_list.append(frames)
-            if i % 200 == 0 and i > 200:
-                rew_avg = round(np.average(rewards_list[i - 199: i]), 2)
-                frames_avg = round(np.average(frames_list[i - 199: i]), 2)
-                print(f"episode {i} over. Average reward {rew_avg}. Total wins: {win1}. "
-                      f"Frames {frames_avg} with eps {round(eps, 3)}")
+            if episode_num % 200 == 0 and episode_num > 200:
+                rew_avg = round(np.average(rewards_list[episode_num - 199: episode_num]), 2)
+                frames_avg = round(np.average(frames_list[episode_num - 199: episode_num]), 2)
                 rewards_avg_list.append(rew_avg)
                 frames_avg_list.append(frames_avg)
 
+                if episode_num % 1000 == 0:
+                    print(f"After {episode_num} episode, average reward {rew_avg}, total wins: {win1}, "
+                          f"avg frames {frames_avg}, eps {round(eps, 3)}")
+
         if total_frames % TARGET_UPDATE_FRAMES == 1:
-            print(f"Updated target network at {total_frames} frames.")
+            # print(f"Updated target network at {total_frames} frames.")
             player.update_target_network()
 
         if total_frames == 10000:
@@ -151,17 +153,17 @@ for i in range(0, episodes):
                        f"./pretrained_models/weights_Jack-v{frame_stacks}_{total_frames}.mdl")
 
 
-    if (i % 10000 == 0 and i > 0) or (i == 1000):
+    if (episode_num % 10000 == 0 and episode_num > 0) or (episode_num == 1000):
         fig, [ax1, ax2] = plt.subplots(nrows=2, ncols=1, figsize=(6.4, 4.8 * 2))
         x = np.arange(len(rewards_avg_list))
         x = x * 200
         ax1.plot(x, rewards_avg_list)
         ax1.set_xlabel(f"Number of episodes")
-        ax1.set_ylabel(f"Avg. reward for 100 episodes")
+        ax1.set_ylabel(f"Avg. reward for 200 episodes")
 
         ax2.plot(x, frames_avg_list)
         ax2.set_xlabel(f"Number of episodes")
-        ax2.set_ylabel(f"Avg. frame duration for 100 episodes")
+        ax2.set_ylabel(f"Avg. frame duration for 200 episodes")
 
-        fig.savefig(f"./plots/rewards_{i}.png")
-        print(f"Learning plot saved after episode {i}.")
+        fig.savefig(f"./plots/rewards_{episode_num}.png")
+        print(f"Learning plot saved after episode {episode_num}.")

@@ -6,7 +6,7 @@ with two SimpleAIs playing against each other
 import gym
 import argparse
 import wimblepong
-from double_dqn import agent_jack
+import agent_jack
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")
@@ -24,8 +24,9 @@ env.unwrapped.fps = args.fps
 # Define the player IDs for both SimpleAI agents
 player_id = 1
 opponent_id = 3 - player_id
-LOADPATH = "./pretrained_models/weights_Jack-v4_3000000.mdl"
 opponent = wimblepong.SimpleAi(env, opponent_id)
+
+LOADPATH = "./pretrained_models/weights_Jack-v2_400000.mdl"
 player = agent_jack.Agent(env, player_id, load_path=LOADPATH)
 print(player.get_name())
 

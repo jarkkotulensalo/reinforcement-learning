@@ -191,7 +191,6 @@ class Agent(object):
         stack_ob = np.concatenate((self.prev_obs, observation), axis=0)
         # print(f"stack_ob {stack_ob.shape}")
 
-        # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
         while stack_ob.shape[0] < self.frame_stacks:
             stack_ob = self._stack_frames(stack_ob, observation)
             # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
