@@ -3,13 +3,11 @@ This is an example on how to use the two player Wimblepong environment with one
 agent and the SimpleAI
 """
 import matplotlib.pyplot as plt
-import pickle
 import gym
 import numpy as np
 import torch
 import argparse
 import warnings
-import wimblepong
 import agent_jack
 import yaml
 
@@ -182,11 +180,10 @@ for episode_num in range(0, num_episodes):
             torch.save(player.policy_net.state_dict(),
                        f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
 
-        if total_frames % 100000 == 0:
+        if total_frames % 200000 == 0:
             print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
             torch.save(player.policy_net.state_dict(),
                        f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
-
 
     if (episode_num % 10000 == 0 and episode_num > 0) or (episode_num == 1000):
         fig, [ax1, ax2] = plt.subplots(nrows=2, ncols=1, figsize=(6.4, 4.8 * 2))
@@ -202,3 +199,6 @@ for episode_num in range(0, num_episodes):
 
         fig.savefig(f"./plots/rewards_{episode_num}.png")
         print(f"Learning plot saved after episode {episode_num}.")
+
+torch.save(player.policy_net.state_dict(),
+                       f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}_final.mdl")

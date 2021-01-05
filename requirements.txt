@@ -1,3 +1,7 @@
+PyYAML
+torch
+numpy
+matplotlib
 gym==0.15.4
 matplotlib=3.1.1
 numpy=1.17.4

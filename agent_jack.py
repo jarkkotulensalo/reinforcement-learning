@@ -28,8 +28,11 @@ class DQN(nn.Module):
                                      out_channels=32,
                                      kernel_size=8,
                                      stride=4)
+        self.batchnorm1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, 4, 2)
+        self.batchnorm2 = nn.BatchNorm2d(64)
         self.conv3 = nn.Conv2d(64, 64, 3, 1)
+        self.batchnorm3 = nn.BatchNorm2d(64)
         self.reshaped_size = 64 * 9 * 9
         self.fc1 = nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = nn.Linear(self.hidden, action_space_dim)
@@ -43,11 +46,10 @@ class DQN(nn.Module):
                 torch.nn.init.xavier_uniform_(m.weight, gain=nn.init.calculate_gain('relu'))
                 torch.nn.init.zeros_(m.bias)
 
-
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
+        x = F.relu(self.batchnorm1(self.conv1(x)))
+        x = F.relu(self.batchnorm2(self.conv2(x)))
+        x = F.relu(self.batchnorm3(self.conv3(x)))
         x = x.reshape(x.shape[0], self.reshaped_size)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
