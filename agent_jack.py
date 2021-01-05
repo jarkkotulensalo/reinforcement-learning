@@ -56,7 +56,7 @@ class DQN(nn.Module):
 
 
 class Agent(object):
-    def __init__(self, env, player_id, n_actions=3, replay_buffer_size=100000,
+    def __init__(self, env, player_id, optim_params, n_actions=3, replay_buffer_size=100000,
                  batch_size=32, hidden_size=512, gamma=0.99, lr=2.5e-4, save_memory=True,
                  frame_stacks=2, dagger_files=None, double_dqn=True, load_path=""):
         if type(env) is not Wimblepong:
@@ -86,7 +86,10 @@ class Agent(object):
         self.target_net.eval()
         if load_path != "":
             self.load_model(fpath=load_path)
-        self.optimizer = optim.RMSprop(self.policy_net.parameters(), lr=lr, eps=1e-2, momentum=0.95)
+        self.optimizer = optim.RMSprop(self.policy_net.parameters(),
+                                       lr=optim_params['lr'],
+                                       eps=optim_params['eps'],
+                                       momentum=optim_params['momentum'])
         self.memory = ReplayMemory(replay_buffer_size, dagger_files, frame_stacks)
         self.batch_size = batch_size
         self.gamma = gamma

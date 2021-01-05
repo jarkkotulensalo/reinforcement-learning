@@ -14,6 +14,14 @@ parser.add_argument("--fps", type=int, help="FPS for rendering", default=30)
 parser.add_argument("--scale", type=int, help="Scale of the rendered game", default=1)
 args = parser.parse_args()
 
+# Remove registry
+"""
+env_dict = gym.envs.registration.registry.env_specs.copy()
+for env in env_dict:
+    if 'WimblepongVisualMultiplayer-v0' in env:
+        print("Remove {} from registry".format(env))
+        del gym.envs.registration.registry.env_specs[env]
+"""
 # Make the environment
 env = gym.make("WimblepongVisualMultiplayer-v0")
 env.unwrapped.scale = args.scale
