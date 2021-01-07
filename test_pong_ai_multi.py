@@ -5,13 +5,19 @@ with two SimpleAIs playing against each other
 
 import gym
 import argparse
+import matplotlib.pyplot as plt
 import wimblepong
 import agent_jack
+import yaml
+
+from gym import logger as gymlogger
+gymlogger.set_level(40) #error onlyfrom gym import logger as gymlogger
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")
 parser.add_argument("--fps", type=int, help="FPS for rendering", default=30)
 parser.add_argument("--scale", type=int, help="Scale of the rendered game", default=1)
+parser.add_argument('--config', default='config.yaml')
 args = parser.parse_args()
 
 # Remove registry
@@ -34,8 +40,12 @@ player_id = 1
 opponent_id = 3 - player_id
 opponent = wimblepong.SimpleAi(env, opponent_id)
 
-LOADPATH = "./pretrained_models/weights_Jack-v2_400000.mdl"
-player = agent_jack.Agent(env, player_id, load_path=LOADPATH)
+# LOADPATH = "pretrained_models/weights_Jack-v2_1200000.mdl"
+config = yaml.load(open(args.config))
+load_path = config['path_pretrained_model']
+agent_config = config['agent_params']
+optim_config = agent_config['optim_params']
+player = agent_jack.Agent(env, player_id, load_path=load_path, optim_params=optim_config)
 print(player.get_name())
 
 # Set the names for both SimpleAIs
@@ -59,4 +69,5 @@ for i in range(0, episodes):
         if not args.headless:
             env.render()
         if done:
+            observation = env.reset()
             print(f"episode {i} over. Wins {win1}/{i}")

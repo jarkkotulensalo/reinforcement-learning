@@ -18,7 +18,7 @@ parser.add_argument("--headless", action="store_true", help="Run in headless mod
 parser.add_argument("--housekeeping", action="store_true", help="Plot, player and ball positions and velocities at the end of each episode")
 parser.add_argument("--fps", type=int, help="FPS for rendering", default=30)
 parser.add_argument("--scale", type=int, help="Scale of the rendered game", default=1)
-parser.add_argument('--config', default='params.yaml')
+parser.add_argument('--config', default='config.yaml')
 args = parser.parse_args()
 
 # Make the environment
@@ -49,7 +49,7 @@ EXP_EPISODES = epsilon_config['num_exp_episodes']
 exp_end = epsilon_config['end']
 
 # Optim params
-optim_config = agent_config['optim']
+optim_config = agent_config['optim_params']
 lr = optim_config['lr']
 momentum = optim_config['momentum']
 eps = optim_config['eps']
@@ -79,7 +79,7 @@ else:
     dagger_files = None
 
 # load_path = "./pretrained_models/weights_Jack-v4_3000000.mdl"
-load_path = ""
+# load_path = ""
 
 # dagger_files = None
 # Define the player

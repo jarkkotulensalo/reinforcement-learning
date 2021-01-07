@@ -36,15 +36,33 @@ class DQN(nn.Module):
         self.reshaped_size = 64 * 9 * 9
         self.fc1 = nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = nn.Linear(self.hidden, action_space_dim)
+        """
+        self.fc1_adv = nn.Linear(in_features=9*9*64, out_features=512)
+        self.fc1_val = nn.Linear(in_features=9*9*64, out_features=512)
+
+        self.fc2_adv = nn.Linear(in_features=512, out_features=action_space)
+        self.fc2_val = nn.Linear(in_features=512, out_features=1)
+        """
+        self._reset_parameters()
         self._init_weights()
 
     def _init_weights(self):
         print(f"Initialisation of weights with xavier")
         for m in self.modules():
-            if type(m) is nn.Linear or type(m) is nn.Conv2d:
+            if type(m) is nn.Linear:
                 # print(f"init weights")
-                torch.nn.init.xavier_uniform_(m.weight, gain=nn.init.calculate_gain('relu'))
+                # torch.nn.init.xavier_uniform_(m.weight, gain=nn.init.calculate_gain('relu'))
+                torch.nn.init.normal_(m.weight)
                 torch.nn.init.zeros_(m.bias)
+
+    def _reset_parameters(self):
+        relu_gain = nn.init.calculate_gain('relu')
+        self.conv1.weight.data.mul_(relu_gain)
+        self.conv2.weight.data.mul_(relu_gain)
+        self.conv3.weight.data.mul_(relu_gain)
+        self.linear1.weight.data.mul_(relu_gain)
+        self.fc1.weight.data.mul_(relu_gain)
+        self.fc2.weight.data.mul_(relu_gain)
 
     def forward(self, x):
         x = F.relu(self.batchnorm1(self.conv1(x)))
@@ -53,6 +71,17 @@ class DQN(nn.Module):
         x = x.reshape(x.shape[0], self.reshaped_size)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+
+        """
+        adv = self.relu(self.fc1_adv(x))
+        val = self.relu(self.fc1_val(x))
+
+        adv = self.fc2_adv(adv)
+        val = self.fc2_val(val).expand(x.size(0), self.action_space)
+        
+        x = val + adv - adv.mean(1).unsqueeze(1).expand(x.size(0), self.action_space)
+        """
+
         # print(f"forward x {x.shape}")
         return x
 
