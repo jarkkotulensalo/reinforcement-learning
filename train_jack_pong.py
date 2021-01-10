@@ -2,14 +2,17 @@
 This is an example on how to use the two player Wimblepong environment with one
 agent and the SimpleAI
 """
+import argparse
 import matplotlib.pyplot as plt
 import gym
 import numpy as np
 import torch
-import argparse
 import warnings
-import agent_jack
 import yaml
+
+import agent_jack
+from utils import calc_glie, get_dagger_files, plot_rewards, plot_exploration_strategy
+
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -18,7 +21,7 @@ parser.add_argument("--headless", action="store_true", help="Run in headless mod
 parser.add_argument("--housekeeping", action="store_true", help="Plot, player and ball positions and velocities at the end of each episode")
 parser.add_argument("--fps", type=int, help="FPS for rendering", default=30)
 parser.add_argument("--scale", type=int, help="Scale of the rendered game", default=1)
-parser.add_argument('--config', default='config.yaml')
+parser.add_argument('--config', default='config_train.yaml')
 args = parser.parse_args()
 
 # Make the environment
@@ -28,8 +31,9 @@ env.unwrapped.fps = args.fps
 NUM_ACTIONS = 3
 
 # Number of episodes/games to play
-config = yaml.load(open(args.config))
+config = yaml.load(open(args.config), Loader=yaml.FullLoader)
 
+# General params
 num_episodes = config['num_episodes']  # 100000
 load_path = config['path_pretrained_model']
 use_dagger = config['use_dagger']
@@ -54,32 +58,8 @@ lr = optim_config['lr']
 momentum = optim_config['momentum']
 eps = optim_config['eps']
 
-"""
-episodes = 1000  # 100000
-n_actions = 3
-replay_buffer_size = 100000
-batch_size = 32
-hidden_size = 512
-gamma = 0.99
-lr = 2.5e-4
-frame_stacks = 2
-EXP_EPISODES = 50000
-TARGET_UPDATE_FRAMES = 10000
-load_path = ""
-"""
-
 glie_a = round(0.1 / 0.9 * EXP_EPISODES, 0)
-if use_dagger:
-    dagger_files = ['./dagger/mem9-1.pickle',
-                    './dagger/mem7-3.pickle',
-                    './dagger/mem6-4.pickle',
-                    './dagger/mem6-5.pickle',
-                    './dagger/mem25-6.pickle']
-else:
-    dagger_files = None
-
-# load_path = "./pretrained_models/weights_Jack-v4_3000000.mdl"
-# load_path = ""
+dagger_files = get_dagger_files(use_dagger)
 
 # dagger_files = None
 # Define the player
@@ -101,18 +81,7 @@ player = agent_jack.Agent(env=env,
                           load_path=load_path
                           )
 
-x = np.arange(num_episodes)
-y = np.zeros(num_episodes)
-for episode_num in range(0, num_episodes):
-    if episode_num < EXP_EPISODES:
-        y[episode_num] = glie_a / (glie_a + episode_num)
-    else:
-        y[episode_num] = 0.1
-
-plt.ylabel('Exploration')
-plt.xlabel('Number of episodes')
-plt.plot(x, y)
-plt.savefig(f"./plots/exploration_{num_episodes}.png")
+plot_exploration_strategy(num_episodes, EXP_EPISODES, glie_a, exp_end)
 
 # Housekeeping
 states = []
@@ -124,10 +93,7 @@ rewards_list = []
 rewards_avg_list = []
 for episode_num in range(0, num_episodes):
     done = False
-    if episode_num < EXP_EPISODES - 1:
-        eps = glie_a / (glie_a + episode_num)
-    else:
-        eps = exp_end
+    eps = calc_glie(episode_num, EXP_EPISODES, glie_a, exp_end)
     obs = env.reset()
     frames = 0
     rewards = 0
@@ -152,6 +118,7 @@ for episode_num in range(0, num_episodes):
         total_frames += 1
         if done:
             observation = env.reset()
+            player.reset()
             plt.close()  # Hides game window
             if args.housekeeping:
                 plt.plot(states)
@@ -175,30 +142,9 @@ for episode_num in range(0, num_episodes):
             # print(f"Updated target network at {total_frames} frames.")
             player.update_target_network()
 
-        if total_frames == 10000:
-            print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
-            torch.save(player.policy_net.state_dict(),
-                       f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
+        if total_frames == 10000 or total_frames % 500000 == 0:
+            player.save_model(num_frame_stacks, total_frames)
 
-        if total_frames % 200000 == 0:
-            print(f"Model saved weights_Jack-v{1}_{total_frames}.mdl")
-            torch.save(player.policy_net.state_dict(),
-                       f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
+    plot_rewards(episode_num, rewards_avg_list, frames_avg_list)
 
-    if (episode_num % 10000 == 0 and episode_num > 0) or (episode_num == 1000):
-        fig, [ax1, ax2] = plt.subplots(nrows=2, ncols=1, figsize=(6.4, 4.8 * 2))
-        x = np.arange(len(rewards_avg_list))
-        x = x * 200
-        ax1.plot(x, rewards_avg_list)
-        ax1.set_xlabel(f"Number of episodes")
-        ax1.set_ylabel(f"Avg. reward for 200 episodes")
-
-        ax2.plot(x, frames_avg_list)
-        ax2.set_xlabel(f"Number of episodes")
-        ax2.set_ylabel(f"Avg. frame duration for 200 episodes")
-
-        fig.savefig(f"./plots/rewards_{episode_num}.png")
-        print(f"Learning plot saved after episode {episode_num}.")
-
-torch.save(player.policy_net.state_dict(),
-                       f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}_final.mdl")
+player.save_model(num_frame_stacks, total_frames)

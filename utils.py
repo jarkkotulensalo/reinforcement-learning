@@ -1,5 +1,6 @@
 
 from collections import namedtuple
+import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import random
@@ -114,3 +115,61 @@ class ReplayMemory(object):
         :return:
         """
         return np.concatenate((stack_ob, obs), axis=0)
+
+def plot_rewards(episode_num, rewards_avg_list, frames_avg_list):
+    """
+    Plot rewards and avg frames per episode.
+    :param episode_num:
+    :param rewards_avg_list:
+    :param frames_avg_list:
+    :return:
+    """
+
+    if (episode_num % 10000 == 0 and episode_num > 0) or (episode_num == 1000):
+        fig, [ax1, ax2] = plt.subplots(nrows=2, ncols=1, figsize=(6.4, 4.8 * 2))
+        x = np.arange(len(rewards_avg_list))
+        x = x * 200
+        ax1.plot(x, rewards_avg_list)
+        ax1.set_xlabel(f"Number of episodes")
+        ax1.set_ylabel(f"Avg. reward for 200 episodes")
+
+        ax2.plot(x, frames_avg_list)
+        ax2.set_xlabel(f"Number of episodes")
+        ax2.set_ylabel(f"Avg. frame duration for 200 episodes")
+
+        fig.savefig(f"./plots/rewards_{episode_num}.png")
+        print(f"Learning plot saved after episode {episode_num}.")
+
+def plot_exploration_strategy(num_episodes, EXP_EPISODES, glie_a, exp_end):
+    x = np.arange(num_episodes)
+    y = np.zeros(num_episodes)
+    for episode_num in range(0, num_episodes):
+        if episode_num < EXP_EPISODES:
+            y[episode_num] = glie_a / (glie_a + episode_num)
+        else:
+            y[episode_num] = exp_end
+
+    plt.ylabel('Exploration')
+    plt.xlabel('Number of episodes')
+    plt.plot(x, y)
+    plt.savefig(f"./plots/exploration_{num_episodes}.png")
+
+def calc_glie(episode_num, EXP_EPISODES, glie_a, exp_end):
+
+    if episode_num < EXP_EPISODES - 1:
+        eps = glie_a / (glie_a + episode_num)
+    else:
+        eps = exp_end
+    return eps
+
+def get_dagger_files(use_dagger):
+
+    if use_dagger:
+        dagger_files = ['./dagger/mem9-1.pickle',
+                        './dagger/mem7-3.pickle',
+                        './dagger/mem6-4.pickle',
+                        './dagger/mem6-5.pickle',
+                        './dagger/mem25-6.pickle']
+    else:
+        dagger_files = None
+    return dagger_files

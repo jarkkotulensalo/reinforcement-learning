@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")
 parser.add_argument("--fps", type=int, help="FPS for rendering", default=30)
 parser.add_argument("--scale", type=int, help="Scale of the rendered game", default=1)
-parser.add_argument('--config', default='config.yaml')
+parser.add_argument('--config', default='config_play.yaml')
 args = parser.parse_args()
 
 # Remove registry
@@ -41,7 +41,8 @@ opponent_id = 3 - player_id
 opponent = wimblepong.SimpleAi(env, opponent_id)
 
 # LOADPATH = "pretrained_models/weights_Jack-v2_1200000.mdl"
-config = yaml.load(open(args.config))
+config = yaml.load(open(args.config), Loader=yaml.FullLoader)
+episodes = config['num_episodes']
 load_path = config['path_pretrained_model']
 agent_config = config['agent_params']
 optim_config = agent_config['optim_params']
@@ -50,8 +51,6 @@ print(player.get_name())
 
 # Set the names for both SimpleAIs
 env.set_names(player.get_name(), opponent.get_name())
-
-episodes = 20
 
 win1 = 0
 for i in range(0, episodes):

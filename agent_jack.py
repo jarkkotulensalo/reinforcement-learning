@@ -18,9 +18,9 @@ from utils import Transition, ReplayMemory
 from wimblepong import Wimblepong
 
 
-class DQN(nn.Module):
+class DDQN(nn.Module):
     def __init__(self, action_space_dim, hidden=512, frame_stacks=2):
-        super(DQN, self).__init__()
+        super(DDQN, self).__init__()
         self.action_space = action_space_dim
         self.hidden = hidden
 
@@ -87,7 +87,7 @@ class DQN(nn.Module):
 
 class Agent(object):
     def __init__(self, env, player_id, optim_params, n_actions=3, replay_buffer_size=100000,
-                 batch_size=32, hidden_size=512, gamma=0.99, lr=2.5e-4, save_memory=True,
+                 batch_size=32, hidden_size=512, gamma=0.99, save_memory=True,
                  frame_stacks=2, dagger_files=None, double_dqn=True, load_path=""):
         if type(env) is not Wimblepong:
             raise TypeError("I'm not a very smart AI. All I can play is Wimblepong.")
@@ -110,8 +110,8 @@ class Agent(object):
 
         self.batch_size = batch_size
         self.n_actions = n_actions
-        self.policy_net = DQN(n_actions, hidden_size, frame_stacks).to(self.train_device)
-        self.target_net = DQN(n_actions, hidden_size, frame_stacks).to(self.train_device)
+        self.policy_net = DDQN(n_actions, hidden_size, frame_stacks).to(self.train_device)
+        self.target_net = DDQN(n_actions, hidden_size, frame_stacks).to(self.train_device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
         if load_path != "":
@@ -245,7 +245,7 @@ class Agent(object):
         """
         return np.concatenate((stack_ob, obs), axis=0)
 
-    def get_action(self, observation, epsilon=0.3):
+    def get_action(self, observation, epsilon=0.0):
         # epsilon = 0.1
         sample = random.random()
         if sample > epsilon:
@@ -274,14 +274,22 @@ class Agent(object):
         """
         weights = torch.load(fpath)
         self.policy_net.load_state_dict(weights, strict=False)
+        self.policy_net.eval()
         print(f"Loaded model from {fpath}")
         return
 
+    def save_model(self, num_frame_stacks, total_frames):
+        print(f"Model saved weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
+        torch.save(self.policy_net.state_dict(),
+                   f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
+
     def reset(self):
         # Nothing to done for now...
+        self.prev_obs = None
         return
 
     def update_target_network(self):
+
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
     def store_transition(self, observation, action, next_obs, reward, done):

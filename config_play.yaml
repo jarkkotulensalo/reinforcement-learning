@@ -1,0 +1,15 @@
+
+num_episodes: 20
+path_pretrained_model: "pretrained_models/weights_Jack-v2_4000000.mdl"
+use_dagger: False
+agent_params:
+  batch_size: 32
+  fc_hidden_size: 512
+  reward_gamma: 0.99
+  replay_memory: 100000
+  num_frame_stacks: 2
+  target_network_update_frequency: 10000
+  optim_params:
+    lr: 2.5e-4
+    momentum: 0.95
+    eps: 0.01
