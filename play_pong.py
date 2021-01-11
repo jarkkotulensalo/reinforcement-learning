@@ -20,27 +20,16 @@ parser.add_argument("--scale", type=int, help="Scale of the rendered game", defa
 parser.add_argument('--config', default='config_play.yaml')
 args = parser.parse_args()
 
-# Remove registry
-"""
-env_dict = gym.envs.registration.registry.env_specs.copy()
-for env in env_dict:
-    if 'WimblepongVisualMultiplayer-v0' in env:
-        print("Remove {} from registry".format(env))
-        del gym.envs.registration.registry.env_specs[env]
-"""
 # Make the environment
 env = gym.make("WimblepongVisualMultiplayer-v0")
 env.unwrapped.scale = args.scale
 env.unwrapped.fps = args.fps
-# Number of episodes/games to play
-
 
 # Define the player IDs for both SimpleAI agents
 player_id = 1
 opponent_id = 3 - player_id
 opponent = wimblepong.SimpleAi(env, opponent_id)
 
-# LOADPATH = "pretrained_models/weights_Jack-v2_1200000.mdl"
 config = yaml.load(open(args.config), Loader=yaml.FullLoader)
 episodes = config['num_episodes']
 load_path = config['path_pretrained_model']
