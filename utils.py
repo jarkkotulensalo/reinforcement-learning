@@ -137,7 +137,8 @@ def plot_rewards(episode_num, rewards_avg_list, frames_avg_list):
         ax2.set_xlabel(f"Number of episodes")
         ax2.set_ylabel(f"Avg. frame duration for 200 episodes")
 
-        fig.savefig(f"./plots/rewards_{episode_num}.png")
+        fig.tight_layout()
+        plt.savefig(f"./plots/rewards_{episode_num}.png")
         print(f"Learning plot saved after episode {episode_num}.")
 
 def plot_exploration_strategy(num_episodes, EXP_EPISODES, glie_a, exp_end):
@@ -153,6 +154,8 @@ def plot_exploration_strategy(num_episodes, EXP_EPISODES, glie_a, exp_end):
     plt.xlabel('Number of episodes')
     plt.plot(x, y)
     plt.savefig(f"./plots/exploration_{num_episodes}.png")
+
+
 
 def calc_glie(episode_num, EXP_EPISODES, glie_a, exp_end):
 

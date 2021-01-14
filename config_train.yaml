@@ -1,5 +1,5 @@
 
-num_episodes: 50000
+num_episodes: 70000
 path_pretrained_model: ""
 use_dagger: True
 agent_params:
@@ -10,7 +10,7 @@ agent_params:
   num_frame_stacks: 2
   target_network_update_frequency: 10000
   epsilon:
-    num_exp_episodes: 20000
+    num_exp_episodes: 50000
     end: 0.1
   optim_params:
     lr: 2.5e-4
