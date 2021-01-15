@@ -25,6 +25,7 @@ class ReplayMemory(object):
 
     def _load_memory(self):
         transitions = []
+        num_transitions = 0
         if self.dagger_files != None:
             for fpath in self.dagger_files:
                 with open(fpath, 'rb') as f:
@@ -43,12 +44,15 @@ class ReplayMemory(object):
                           processed_next_state,
                           transition.reward,
                           transition.done)
-
                 processed_state = processed_next_state
-                # print(f"processed_state {processed_state.shape}")
+                if transition.done:
+                    num_transitions += 1
+                    self.prev_obs is None
 
+                # print(f"processed_state {processed_state.shape}")
                 total_i += 1
             print(f"Total dagger output memory frames {total_i}")
+            print(f"num_transitions is {num_transitions}")
         return
 
     def push(self, *args):
