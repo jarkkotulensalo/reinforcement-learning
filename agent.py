@@ -7,6 +7,7 @@ Copyright (c) 2017, Pytorch contributors
 All rights reserved.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import torch
@@ -23,7 +24,6 @@ class DDQN(nn.Module):
         super(DDQN, self).__init__()
         self.action_space = action_space_dim
         self.hidden = hidden
-
         self.conv1 = nn.Conv2d(in_channels=frame_stacks,
                                      out_channels=32,
                                      kernel_size=8,
@@ -34,17 +34,18 @@ class DDQN(nn.Module):
         self.conv3 = nn.Conv2d(64, 64, 3, 1)
         self.batchnorm3 = nn.BatchNorm2d(64)
         self.reshaped_size = 64 * 9 * 9
+
+        """
         self.fc1 = nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = nn.Linear(self.hidden, action_space_dim)
         """
-        self.fc1_adv = nn.Linear(in_features=9*9*64, out_features=512)
-        self.fc1_val = nn.Linear(in_features=9*9*64, out_features=512)
+        self.fc1_adv = nn.Linear(in_features=self.reshaped_size, out_features=self.hidden)
+        self.fc1_val = nn.Linear(in_features=self.reshaped_size, out_features=self.hidden)
+        self.fc2_adv = nn.Linear(in_features=self.hidden, out_features=action_space_dim)
+        self.fc2_val = nn.Linear(in_features=self.hidden, out_features=1)
 
-        self.fc2_adv = nn.Linear(in_features=512, out_features=action_space)
-        self.fc2_val = nn.Linear(in_features=512, out_features=1)
-        """
-        self._reset_parameters()
         self._init_weights()
+        self._reset_parameters()
 
     def _init_weights(self):
         print(f"Initialisation of weights with xavier")
@@ -60,28 +61,31 @@ class DDQN(nn.Module):
         self.conv1.weight.data.mul_(relu_gain)
         self.conv2.weight.data.mul_(relu_gain)
         self.conv3.weight.data.mul_(relu_gain)
+        """
         self.fc1.weight.data.mul_(relu_gain)
         self.fc2.weight.data.mul_(relu_gain)
+        """
+        self.fc1_adv.weight.data.mul_(relu_gain)
+        self.fc1_val.weight.data.mul_(relu_gain)
+        self.fc2_adv.weight.data.mul_(relu_gain)
+        self.fc2_val.weight.data.mul_(relu_gain)
 
     def forward(self, x):
         x = F.relu(self.batchnorm1(self.conv1(x)))
         x = F.relu(self.batchnorm2(self.conv2(x)))
         x = F.relu(self.batchnorm3(self.conv3(x)))
         x = x.reshape(x.shape[0], self.reshaped_size)
+
+        """
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
-
         """
-        adv = self.relu(self.fc1_adv(x))
-        val = self.relu(self.fc1_val(x))
-
+        adv = F.relu(self.fc1_adv(x))
+        val = F.relu(self.fc1_val(x))
         adv = self.fc2_adv(adv)
         val = self.fc2_val(val).expand(x.size(0), self.action_space)
-        
         x = val + adv - adv.mean(1).unsqueeze(1).expand(x.size(0), self.action_space)
-        """
 
-        # print(f"forward x {x.shape}")
         return x
 
 
@@ -210,11 +214,19 @@ class Agent(object):
         # print(f"observation {observation.shape}")
         # observation = observation[::2, ::2].mean(axis=-1)
 
-        observation = np.dot(observation, [0.2989, 0.5870, 0.1140]).astype(np.uint8)  # convert to greyscale
-        # print(f"observation {observation.shape}")
-        observation = observation[::2, ::2]
+        #plt.imshow(observation)
+        #plt.show()
         #print(f"observation {observation.shape}")
-        observation = np.expand_dims(observation, axis=0)
+
+        observation = np.dot(observation, [0.2989, 0.5870, 0.1140])  # convert to greyscale
+        #plt.imshow(observation)
+        #plt.show()
+        #print(f"observation {observation.shape}")
+        observation = observation[::2, ::2]
+        #plt.imshow(observation)
+        #plt.show()
+        #print(f"observation {observation.shape}")
+        observation = np.expand_dims(observation, axis=0).astype(np.uint8)
         #print(f"observation {observation.shape}")
 
         if self.prev_obs is None:

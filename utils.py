@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import random
+from PIL import Image
 
 
 Transition = namedtuple('Transition',
@@ -47,12 +48,12 @@ class ReplayMemory(object):
                 processed_state = processed_next_state
                 if transition.done:
                     num_transitions += 1
-                    self.prev_obs is None
+                    self.prev_obs = None
 
                 # print(f"processed_state {processed_state.shape}")
                 total_i += 1
             print(f"Total dagger output memory frames {total_i}")
-            print(f"num_transitions is {num_transitions}")
+            print(f"Number of dagger games loaded is {num_transitions}")
         return
 
     def push(self, *args):
@@ -69,45 +70,38 @@ class ReplayMemory(object):
         with open(savepath, 'wb') as f:
             pickle.dump(self.memory, f)
 
+    def _process_frame(self, observation):
+
+        # dagger files are black-and-white
+        #plt.imshow(observation)
+        #plt.show()
+        #print(f"observation {observation.shape}")
+
+        observation = observation[::2, ::2]
+        #plt.imshow(observation)
+        #plt.show()
+        #print(f"observation {observation.shape}")
+
+        observation = np.expand_dims(observation, axis=0).astype(np.uint8)
+        #print(f"observation {observation.shape}")
+        return observation
+
     def _preprocess(self, observation):
         # print(f"observation {observation.shape}")
-        # observation = observation[::2, ::2].mean(axis=-1)
-
-        # observation = np.dot(observation, [0.2989, 0.5870, 0.1140]).astype(np.uint8)  # convert to greyscale
-        # print(f"observation {observation.shape}")
-        observation = observation[::2, ::2]
-        # print(f"observation {observation.shape}")
-        observation = np.expand_dims(observation, axis=0)
-        # print(f"observation {observation.shape}")
+        observation = self._process_frame(observation)
 
         if self.prev_obs is None:
             self.prev_obs = observation
 
-        #print(f"self.prev_obs {self.prev_obs.shape}")
         stack_ob = np.concatenate((self.prev_obs, observation), axis=0)
         # print(f"stack_ob {stack_ob.shape}")
 
-        # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
         while stack_ob.shape[0] < self.frame_stacks:
             stack_ob = self._stack_frames(stack_ob, observation)
             # print(f"stack_ob.shape[0] {stack_ob.shape[0]}")
         # print(f"stack_ob {stack_ob.shape}")
 
         self.prev_obs = stack_ob[1:self.frame_stacks, :, :]
-        # print(f"self.prev_obs.shape[0] {self.prev_obs.shape[0]}")
-
-        # print(f"stack_ob {stack_ob.shape}")
-        return stack_ob
-
-    def _preprocess_next(self, observation):
-
-        observation = observation[::2, ::2]
-        # print(f"observation {observation.shape}")
-        observation = np.expand_dims(observation, axis=0)
-        # print(f"observation {observation.shape}")
-
-        #print(f"self.prev_obs {self.prev_obs.shape}")
-        stack_ob = np.concatenate((self.prev_obs, observation), axis=0)
         # print(f"stack_ob {stack_ob.shape}")
         return stack_ob
 
@@ -160,7 +154,6 @@ def plot_exploration_strategy(num_episodes, EXP_EPISODES, glie_a, exp_end):
     plt.savefig(f"./plots/exploration_{num_episodes}.png")
 
 
-
 def calc_glie(episode_num, EXP_EPISODES, glie_a, exp_end):
 
     if episode_num < EXP_EPISODES - 1:
@@ -168,6 +161,7 @@ def calc_glie(episode_num, EXP_EPISODES, glie_a, exp_end):
     else:
         eps = exp_end
     return eps
+
 
 def get_dagger_files(use_dagger):
 

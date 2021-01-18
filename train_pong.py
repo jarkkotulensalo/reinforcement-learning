@@ -126,15 +126,15 @@ for episode_num in range(0, num_episodes):
 
             rewards_list.append(rew1)
             frames_list.append(frames)
-            if episode_num % 200 == 0 and episode_num > 200:
+            if episode_num % 200 == 0 and episode_num > 0:
                 rew_avg = round(np.average(rewards_list[episode_num - 199: episode_num]), 2)
                 frames_avg = round(np.average(frames_list[episode_num - 199: episode_num]), 2)
                 rewards_avg_list.append(rew_avg)
                 frames_avg_list.append(frames_avg)
 
-                if episode_num % 1000 == 0:
-                    print(f"After {episode_num} episode, average reward {rew_avg}, total wins: {win1}, "
-                          f"avg frames {frames_avg}, eps {round(eps, 3)}")
+            if episode_num % 200 == 0 and episode_num > 0:
+                print(f"After {episode_num} episode, average reward {rew_avg}, total wins: {win1}, "
+                      f"avg frames {frames_avg}, eps {round(eps, 3)}")
 
         if total_frames % target_network_update_frequency == 1:
             # print(f"Updated target network at {total_frames} frames.")
