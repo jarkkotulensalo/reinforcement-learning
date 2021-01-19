@@ -10,6 +10,7 @@ All rights reserved.
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -292,7 +293,8 @@ class Agent(object):
 
     def save_model(self, num_frame_stacks, total_frames):
         print(f"Model saved weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
-        torch.save(self.policy_net.state_dict(),
+        time.sleep(10)
+        torch.save(self.policy_net.cpu().state_dict(),
                    f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
 
     def reset(self):
