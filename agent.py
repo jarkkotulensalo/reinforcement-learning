@@ -44,7 +44,7 @@ class DDQN(nn.Module):
         self.fc2_adv = nn.Linear(in_features=self.hidden, out_features=action_space_dim)
         self.fc2_val = nn.Linear(in_features=self.hidden, out_features=1)
         """
-        #self._init_weights()
+        # self._init_weights()
         self._reset_parameters()
 
     def _init_weights(self):
@@ -61,7 +61,7 @@ class DDQN(nn.Module):
         self.conv1.weight.data.mul_(relu_gain)
         self.conv2.weight.data.mul_(relu_gain)
         self.conv3.weight.data.mul_(relu_gain)
-        """
+
         self.fc1.weight.data.mul_(relu_gain)
         self.fc2.weight.data.mul_(relu_gain)
         """
@@ -69,7 +69,7 @@ class DDQN(nn.Module):
         self.fc1_val.weight.data.mul_(relu_gain)
         self.fc2_adv.weight.data.mul_(relu_gain)
         self.fc2_val.weight.data.mul_(relu_gain)
-
+        """
     def forward(self, x):
         """
         x = F.relu(self.batchnorm1(self.conv1(x)))
