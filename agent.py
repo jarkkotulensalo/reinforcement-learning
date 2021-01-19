@@ -36,6 +36,7 @@ class DDQN(nn.Module):
         self.batchnorm3 = nn.BatchNorm2d(64)
         self.reshaped_size = 64 * 9 * 9
 
+        """
         self.fc1 = nn.Linear(self.reshaped_size, self.hidden)
         self.fc2 = nn.Linear(self.hidden, action_space_dim)
         """
@@ -43,9 +44,9 @@ class DDQN(nn.Module):
         self.fc1_val = nn.Linear(in_features=self.reshaped_size, out_features=self.hidden)
         self.fc2_adv = nn.Linear(in_features=self.hidden, out_features=action_space_dim)
         self.fc2_val = nn.Linear(in_features=self.hidden, out_features=1)
-        """
-        # self._init_weights()
+
         self._reset_parameters()
+        self._init_weights()
 
     def _init_weights(self):
         print(f"Initialisation of weights with xavier")
@@ -62,6 +63,7 @@ class DDQN(nn.Module):
         self.conv2.weight.data.mul_(relu_gain)
         self.conv3.weight.data.mul_(relu_gain)
 
+        """
         self.fc1.weight.data.mul_(relu_gain)
         self.fc2.weight.data.mul_(relu_gain)
         """
@@ -69,18 +71,15 @@ class DDQN(nn.Module):
         self.fc1_val.weight.data.mul_(relu_gain)
         self.fc2_adv.weight.data.mul_(relu_gain)
         self.fc2_val.weight.data.mul_(relu_gain)
-        """
+
     def forward(self, x):
-        """
+
         x = F.relu(self.batchnorm1(self.conv1(x)))
         x = F.relu(self.batchnorm2(self.conv2(x)))
         x = F.relu(self.batchnorm3(self.conv3(x)))
-        """
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
         x = x.reshape(x.shape[0], self.reshaped_size)
 
+        """
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         """
@@ -89,7 +88,7 @@ class DDQN(nn.Module):
         adv = self.fc2_adv(adv)
         val = self.fc2_val(val).expand(x.size(0), self.action_space)
         x = val + adv - adv.mean(1).unsqueeze(1).expand(x.size(0), self.action_space)
-        """
+
         return x
 
 
