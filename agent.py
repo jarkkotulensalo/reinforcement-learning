@@ -46,7 +46,7 @@ class DDQN(nn.Module):
         self.fc2_val = nn.Linear(in_features=self.hidden, out_features=1)
 
         self._reset_parameters()
-        self._init_weights()
+        # self._init_weights()
 
     def _init_weights(self):
         print(f"Initialisation of weights with xavier")
@@ -298,6 +298,7 @@ class Agent(object):
         time.sleep(10)
         torch.save(self.policy_net.cpu().state_dict(),
                    f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
+        self.policy_net.to(self.train_device)
 
     def reset(self):
         # Nothing to done for now...
