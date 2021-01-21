@@ -296,9 +296,8 @@ class Agent(object):
     def save_model(self, num_frame_stacks, total_frames):
         print(f"Model saved weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
         time.sleep(10)
-        torch.save(self.policy_net.cpu().state_dict(),
+        torch.save(self.policy_net.state_dict(),
                    f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
-        self.policy_net.to(self.train_device)
 
     def reset(self):
         # Nothing to done for now...

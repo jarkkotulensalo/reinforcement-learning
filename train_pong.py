@@ -140,7 +140,7 @@ for episode_num in range(0, num_episodes):
             # print(f"Updated target network at {total_frames} frames.")
             player.update_target_network()
 
-        if total_frames == 10000 or total_frames % 500000 == 0:
+        if total_frames == 1000 or total_frames == 10000 or total_frames % 500000 == 0:
             player.save_model(num_frame_stacks, total_frames)
 
     plot_rewards(episode_num, rewards_avg_list, frames_avg_list)
