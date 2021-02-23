@@ -63,6 +63,7 @@ dagger_files = get_dagger_files(use_dagger)
 # dagger_files = None
 # Define the player
 player_id = 1
+opponent_id = 2
 # Set up the player here. We used the SimpleAI that does not take actions for now
 player = Agent(env=env,
               player_id=player_id,
@@ -143,6 +144,10 @@ for episode_num in range(0, num_episodes):
         if total_frames == 1000 or total_frames == 10000 or total_frames % 500000 == 0:
             player.save_model(num_frame_stacks, total_frames)
 
+    if episode_num % 5 == 4:
+        env.switch_sides()
+
     plot_rewards(episode_num, rewards_avg_list, frames_avg_list)
+
 
 player.save_model(num_frame_stacks, total_frames)

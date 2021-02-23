@@ -1,0 +1,19 @@
+
+num_episodes: 100000
+update_opponent_win_rate: 0.9
+path_pretrained_model: ""
+use_dagger: True
+agent_params:
+  batch_size: 32
+  fc_hidden_size: 512
+  reward_gamma: 0.99
+  replay_memory: 100000
+  num_frame_stacks: 2
+  target_network_update_frequency: 10000
+  epsilon:
+    num_exp_episodes: 50000
+    end: 0.1
+  optim_params:
+    lr: 2.5e-4
+    momentum: 0.95
+    eps: 0.1

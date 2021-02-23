@@ -59,3 +59,6 @@ for i in range(0, episodes):
         if done:
             observation = env.reset()
             print(f"episode {i} over. Wins {win1}/{i}")
+
+    if i % 5 == 4:
+        env.switch_sides()

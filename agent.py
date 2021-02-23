@@ -282,18 +282,20 @@ class Agent(object):
         """
         return self.name
 
-    def load_model(self, fpath):
+    def load_model(self, total_frames, num_frame_stacks=2, fpath=None):
         """
         state_dict = torch.load(args.test)
         :return:
         """
+        if fpath is None:
+            fpath = f"./pretrained_models/weights_Jack-v{num_frame_stacks}_{total_frames}.mdl"
         weights = torch.load(fpath)
         self.policy_net.load_state_dict(weights, strict=False)
         self.policy_net.eval()
         print(f"Loaded model from {fpath}")
         return
 
-    def save_model(self, num_frame_stacks, total_frames):
+    def save_model(self, total_frames, num_frame_stacks=2):
         print(f"Model saved weights_Jack-v{num_frame_stacks}_{total_frames}.mdl")
         self.policy_net.to('cpu')
         time.sleep(10)
