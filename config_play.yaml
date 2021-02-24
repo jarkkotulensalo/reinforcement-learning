@@ -1,6 +1,6 @@
 
 num_episodes: 20
-path_pretrained_model: "pretrained_models/weights_Jack-v2_89374.mdl"
+path_pretrained_model: "pretrained_models/weights_Jack-v324995.mdl"
 use_dagger: False
 agent_params:
   batch_size: 32

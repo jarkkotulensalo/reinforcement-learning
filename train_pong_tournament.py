@@ -154,7 +154,6 @@ for episode_num in range(0, num_episodes):
 
             rewards_list.append(rew1)
             frames_list.append(frames)
-            win_rate_list.append()
             if episode_num % 200 == 0 and episode_num > 0:
                 rew_avg = round(np.average(rewards_list[episode_num - 199: episode_num]), 2)
                 frames_avg = round(np.average(frames_list[episode_num - 199: episode_num]), 2)

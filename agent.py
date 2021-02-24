@@ -282,7 +282,7 @@ class Agent(object):
         """
         return self.name
 
-    def load_model(self, total_frames, num_frame_stacks=2, fpath=None):
+    def load_model(self, total_frames=1, num_frame_stacks=2, fpath=None):
         """
         state_dict = torch.load(args.test)
         :return:
