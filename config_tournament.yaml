@@ -1,8 +1,8 @@
 
 num_episodes: 100000
-update_opponent_win_rate: 0.9
-path_pretrained_model: ""
-use_dagger: True
+update_opponent_win_rate: 0.7
+path_pretrained_model: "pretrained_models/weights_Jack-v2_800000.mdl"
+use_dagger: False
 agent_params:
   batch_size: 32
   fc_hidden_size: 512
