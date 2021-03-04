@@ -162,8 +162,7 @@ for episode_num in range(0, num_episodes):
                 win_rate = round(total_wins1/200, 3)
                 win_rate_list.append(win_rate)
 
-                print(f"After {episode_num} episode, average reward {rew_avg}, win rate: {win_rate}, "
-                      f"avg frames {frames_avg}, eps {round(eps, 3)}")
+                print(f"After {episode_num} episode, average reward {rew_avg}, win rate: {win_rate}, avg frames {frames_avg}, eps {round(eps, 3)}")
                 total_wins1 = 0
 
                 # When winning gets too easy, upgrade opponent
